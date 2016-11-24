@@ -38,6 +38,7 @@ def dot(x, y, sparse=False):
 
 class Layer(object):
     """Base layer class. Defines basic API for all layer objects.
+    Implementation inspired by keras (http://keras.io).
 
     # Properties
         name: String, defines the variable scope of the layer.

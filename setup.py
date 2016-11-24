@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(name='gcn',
-      version='0.0.1',
+      version='1.0',
       description='Graph Convolutional Networks in Tensorflow',
       author='Thomas Kipf',
       author_email='thomas.kipf@gmail.com',
@@ -15,8 +15,5 @@ setup(name='gcn',
                         'sklearn',
                         'scipy'
                         ],
-      extras_require={
-          'visualization': ['matplotlib'],
-      },
       package_data={'gcn': ['README.md', 'gcn/data/']},
       packages=find_packages())

@@ -8,7 +8,7 @@ from gcn.utils import *
 from gcn.models import GCN, MLP
 
 # Set random seed
-seed = 15123  # 123
+seed = 123
 np.random.seed(seed)
 tf.set_random_seed(seed)
 
@@ -16,14 +16,13 @@ tf.set_random_seed(seed)
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('dataset', 'cora', 'Dataset string.')  # 'cora', 'citeseer', 'pubmed'
+flags.DEFINE_string('model', 'gcn', 'Model string.')  # 'gcn', 'gcn_cheby', 'dense'
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
 flags.DEFINE_integer('hidden1', 16, 'Number of units in hidden layer 1.')
-flags.DEFINE_integer('dropout', 0.5, 'Dropout rate (1 - keep probability).')
-flags.DEFINE_integer('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
-flags.DEFINE_integer('weight_decay2', 0., 'Weight for L2 loss on hidden matrix.')
+flags.DEFINE_float('dropout', 0.5, 'Dropout rate (1 - keep probability).')
+flags.DEFINE_float('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
 flags.DEFINE_integer('early_stopping', 10, 'Tolerance for early stopping (# of epochs).')
-flags.DEFINE_string('prop_model', 'gcn_simple', 'gcn_simple vs. gcn_cheb')
 flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 
 # Load data
@@ -31,12 +30,18 @@ adj, features, y_train, y_val, y_test, train_mask, val_mask, test_mask = load_da
 
 # Some preprocessing
 features = preprocess_features(features)
-if FLAGS.prop_model == 'gcn_simple':
+if FLAGS.model == 'gcn':
     support = [preprocess_adj(adj)]
     num_supports = 1
-elif FLAGS.prop_model == 'gcn_cheb':
+    model_func = GCN
+elif FLAGS.model == 'gcn_cheby':
     support = chebyshev_polynomials(adj, FLAGS.max_degree)
     num_supports = 1 + FLAGS.max_degree
+    model_func = GCN
+elif FLAGS.model == 'dense':
+    support = [preprocess_adj(adj)]  # Not used
+    num_supports = 1
+    model_func = MLP
 else:
     raise ValueError('Invalid argument for prop_model: ' + str(FLAGS.prop_model))
 
@@ -51,14 +56,14 @@ placeholders = {
 }
 
 # Create model
-model = GCN(placeholders, input_dim=features[2][1], logging=True)
+model = model_func(placeholders, input_dim=features[2][1], logging=True)
 
 # Initialize session
 sess = tf.Session()
 
 
 # Define model evaluation function
-def evaluate(features, support, labels, mask):
+def evaluate(features, support, labels, mask, placeholders):
     t_test = time.time()
     feed_dict_val = construct_feed_dict(features, support, labels, mask, placeholders)
     outs_val = sess.run([model.loss, model.accuracy], feed_dict=feed_dict_val)
@@ -82,7 +87,7 @@ for epoch in range(FLAGS.epochs):
     outs = sess.run([model.opt_op, model.loss, model.accuracy], feed_dict=feed_dict)
 
     # Validation
-    cost, acc, duration = evaluate(features, support, y_val, val_mask)
+    cost, acc, duration = evaluate(features, support, y_val, val_mask, placeholders)
     cost_val.append(cost)
 
     # Print results
@@ -97,6 +102,6 @@ for epoch in range(FLAGS.epochs):
 print("Optimization Finished!")
 
 # Testing
-test_cost, test_acc, test_duration = evaluate(features, support, y_test, test_mask)
+test_cost, test_acc, test_duration = evaluate(features, support, y_test, test_mask, placeholders)
 print("Test set results:", "cost=", "{:.5f}".format(test_cost),
       "accuracy=", "{:.5f}".format(test_acc), "time=", "{:.5f}".format(test_duration))

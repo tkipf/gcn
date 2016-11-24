@@ -38,7 +38,7 @@ In this example, we load citation network data (Cora, Citeseer or Pubmed). The o
 You can specify a dataset as follows:
 
 ```bash
-python train.py --dataset 'citeseer'
+python train.py --dataset citeseer
 ```
 
 (or by editing `train.py`)

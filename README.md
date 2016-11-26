@@ -17,6 +17,7 @@ python setup.py install
 ## Requirements
 * tensorflow (>0.10)
 * networkx
+* sklearn
 
 ## Run the demo
 

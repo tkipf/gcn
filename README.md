@@ -29,7 +29,7 @@ python train.py
 In order to use your own data, you have to provide 
 * an N by N adjacency matrix (N is the number of nodes), 
 * an N by D feature matrix (D is the number of features per node), and
-* a N by E binary label matrix (E is the number of classes).
+* an N by E binary label matrix (E is the number of classes).
 
 Have a look at the `load_data()` function in `utils.py` for an example.
 
@@ -52,6 +52,8 @@ You can choose between the following models:
 
 
 ## Cite
+
+Please cite our paper if you use this code in your own work:
 
 ```
 @article{kipf2016semi,

@@ -21,7 +21,7 @@ def sample_mask(idx, l):
 
 
 def load_data(dataset_str):
-    """Loat data."""
+    """Load data."""
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
     objects = []
     for i in range(len(names)):

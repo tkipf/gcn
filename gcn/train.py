@@ -43,7 +43,7 @@ elif FLAGS.model == 'dense':
     num_supports = 1
     model_func = MLP
 else:
-    raise ValueError('Invalid argument for prop_model: ' + str(FLAGS.prop_model))
+    raise ValueError('Invalid argument for model: ' + str(FLAGS.model))
 
 # Define placeholders
 placeholders = {

@@ -71,15 +71,15 @@ class Layer(object):
     def __call__(self, inputs):
         with tf.name_scope(self.name):
             if self.logging and not self.sparse_inputs:
-                tf.histogram_summary(self.name + '/inputs', inputs)
+                tf.summary.histogram(self.name + '/inputs', inputs)
             outputs = self._call(inputs)
             if self.logging:
-                tf.histogram_summary(self.name + '/outputs', outputs)
+                tf.summary.histogram(self.name + '/outputs', outputs)
             return outputs
 
     def _log_vars(self):
         for var in self.vars:
-            tf.histogram_summary(self.name + '/vars/' + var, self.vars[var])
+            tf.summary.histogram(self.name + '/vars/' + var, self.vars[var])
 
 
 class Dense(Layer):

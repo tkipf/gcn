@@ -15,7 +15,7 @@ python setup.py install
 ```
 
 ## Requirements
-* tensorflow (>0.10)
+* tensorflow (>0.12)
 * networkx
 
 ## Run the demo

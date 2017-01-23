@@ -1,8 +1,9 @@
 import numpy as np
-import cPickle as pkl
+import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
 from scipy.sparse.linalg.eigen.arpack import eigsh
+import sys
 
 
 def parse_index_file(filename):
@@ -25,7 +26,10 @@ def load_data(dataset_str):
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
     objects = []
     for i in range(len(names)):
-        objects.append(pkl.load(open("data/ind.{}.{}".format(dataset_str, names[i]))))
+        if sys.version_info > (3, 0):
+            objects.append(pkl.load(open("data/ind.{}.{}".format(dataset_str, names[i])), encoding='latin1'))
+        else:
+            objects.append(pkl.load(open("data/ind.{}.{}".format(dataset_str, names[i]))))
     x, y, tx, ty, allx, ally, graph = tuple(objects)
     test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
     test_idx_range = np.sort(test_idx_reorder)

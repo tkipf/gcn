@@ -14,5 +14,5 @@ setup(name='gcn',
                         'networkx',
                         'scipy'
                         ],
-      package_data={'gcn': ['README.md', 'gcn/data/']},
+      package_data={'gcn': ['README.md']},
       packages=find_packages())

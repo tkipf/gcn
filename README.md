@@ -62,10 +62,10 @@ Our framework also supports batch-wise classification of multiple graph instance
 Please cite our paper if you use this code in your own work:
 
 ```
-@article{kipf2016semi,
+@inproceedings{kipf2017semi,
   title={Semi-Supervised Classification with Graph Convolutional Networks},
-  author={Kipf, Thomas N and Welling, Max},
-  journal={arXiv preprint arXiv:1609.02907},
-  year={2016}
+  author={Kipf, Thomas N. and Welling, Max},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2017}
 }
 ```

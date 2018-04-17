@@ -35,10 +35,10 @@ In order to use your own data, you have to provide:
 Talking a bit about the code implementation:
 
 * `ind.owndatasetname.x` the feature vectors of the training instances as **scipy.sparse.csr.csr_matrix** object;
-* `ind.owndatasetname.tx` the feature vectors of the test instances. as **scipy.sparse.csr.csr_matrix** object;
+* `ind.owndatasetname.tx` the feature vectors of the test instances as **scipy.sparse.csr.csr_matrix** object;
 * `ind.owndatasetname.allx`  the feature vectors of both labeled and unlabeled training instances (a superset of `ind.owndatasetname.x`) as **scipy.sparse.csr.csr_matrix** object;
 * `ind.owndatasetname.y` the one-hot labels of the labeled training instances as **numpy.ndarray** object;
-* `ind.owndatasetname.ty` the one-hot labels of the test instances. as **numpy.ndarray** object;
+* `ind.owndatasetname.ty` the one-hot labels of the test instances as **numpy.ndarray** object;
 * `ind.owndatasetname.ally`  the labels for instances in `ind.owndatasetname.allx` as **numpy.ndarray** object;
 * `ind.owndatasetname.graph` a dict in the format `{index: [index_of_neighbor_nodes]}` as **collections.defaultdict** object;
 * `ind.owndatasetname.test.index` the indices of test instances in graph, for the inductive setting as **list** object.

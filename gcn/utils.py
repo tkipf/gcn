@@ -6,13 +6,21 @@ from scipy.sparse.linalg.eigen.arpack import eigsh
 import sys
 
 
+PKL_ENCODING = "latin-1" # ASCII, latin-1
+
+
 def parse_index_file(filename):
     """Parse index file."""
     index = []
-    for line in open(filename):
-        index.append(int(line.strip()))
-    return index
-
+    # checks if the file was created using pickle module
+    try:
+        with open(filename, 'rb') as f:
+            return pkl.load(f, encoding=PKL_ENCODING)
+    except:
+        for line in open(filename):
+            index.append(int(line.strip()))
+        return index
+        
 
 def sample_mask(idx, l):
     """Create mask."""
@@ -45,15 +53,16 @@ def load_data(dataset_str):
     objects = []
     for i in range(len(names)):
         with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
-            if sys.version_info > (3, 0):
-                objects.append(pkl.load(f, encoding='latin1'))
+            if sys.version_info > (3, 0):            
+                objects.append(pkl.load(f, encoding=PKL_ENCODING))              
             else:
                 objects.append(pkl.load(f))
 
     x, y, tx, ty, allx, ally, graph = tuple(objects)
-    test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
+      
+    test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))          
     test_idx_range = np.sort(test_idx_reorder)
-
+    
     if dataset_str == 'citeseer':
         # Fix citeseer dataset (there are some isolated nodes in the graph)
         # Find isolated nodes, add them as zero-vecs into the right position

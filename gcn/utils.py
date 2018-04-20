@@ -45,20 +45,18 @@ def load_data(dataset_str):
     objects = []
     for i in range(len(names)):
         with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
-            if dataset_str == 'voc2012':            
-                objects.append(pkl.load(f))              
+            if sys.version_info > (3, 0):            
+                objects.append(pkl.load(f, encoding="ASCII"))              
             else:
                 objects.append(pkl.load(f, encoding="latin-1" ))
 
     x, y, tx, ty, allx, ally, graph = tuple(objects)
-
-    print('len ally: {}, len ty: {}'.format(len(y), len(ty)))
     
-    if dataset_str == 'voc2012':
+    if sys.version_info > (3, 0):
         test_idx_reorder = None
         with open("data/ind.{}.test.index".format(dataset_str), 'rb') as f:
                 if sys.version_info > (3, 0):               
-                    test_idx_reorder = pkl.load(f)
+                    test_idx_reorder = pkl.load(f, encoding="ASCII")
     else:
         test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))          
     

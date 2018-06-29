@@ -41,6 +41,7 @@ def load_data(dataset_str):
     :param dataset_str: Dataset name
     :return: All data input files loaded (as well the training/test data).
     """
+   
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
     objects = []
     for i in range(len(names)):
@@ -49,12 +50,13 @@ def load_data(dataset_str):
                 objects.append(pkl.load(f, encoding='latin1'))
             else:
                 objects.append(pkl.load(f))
-
     x, y, tx, ty, allx, ally, graph = tuple(objects)
+
     test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
     test_idx_range = np.sort(test_idx_reorder)
-
+    
     if dataset_str == 'citeseer':
+        
         # Fix citeseer dataset (there are some isolated nodes in the graph)
         # Find isolated nodes, add them as zero-vecs into the right position
         test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
@@ -76,14 +78,16 @@ def load_data(dataset_str):
     idx_train = range(len(y))
     idx_val = range(len(y), len(y)+500)
 
-    train_mask = sample_mask(idx_train, labels.shape[0])
+   
     val_mask = sample_mask(idx_val, labels.shape[0])
     test_mask = sample_mask(idx_test, labels.shape[0])
+    train_mask = np.logical_not(val_mask+test_mask)
 
     y_train = np.zeros(labels.shape)
     y_val = np.zeros(labels.shape)
     y_test = np.zeros(labels.shape)
-    y_train[train_mask, :] = labels[train_mask, :]
+
+    y_train[train_mask,:] = labels[train_mask,:]
     y_val[val_mask, :] = labels[val_mask, :]
     y_test[test_mask, :] = labels[test_mask, :]
 
@@ -135,13 +139,14 @@ def preprocess_adj(adj):
     return sparse_to_tuple(adj_normalized)
 
 
-def construct_feed_dict(features, support, labels, labels_mask, placeholders):
+def construct_feed_dict(features, support, labels, labels_mask, sub_sampled_support,placeholders):
     """Construct feed dictionary."""
     feed_dict = dict()
     feed_dict.update({placeholders['labels']: labels})
     feed_dict.update({placeholders['labels_mask']: labels_mask})
     feed_dict.update({placeholders['features']: features})
     feed_dict.update({placeholders['support'][i]: support[i] for i in range(len(support))})
+    feed_dict.update({placeholders['sub_sampled_support'][i]: sub_sampled_support[i] for i in range(len(sub_sampled_support))})
     feed_dict.update({placeholders['num_features_nonzero']: features[1].shape})
     return feed_dict
 

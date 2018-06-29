@@ -1,5 +1,5 @@
-from gcn.layers import *
-from gcn.metrics import *
+from layers import *
+from metrics import *
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -132,9 +132,9 @@ class MLP(Model):
 class GCN(Model):
     def __init__(self, placeholders, input_dim, **kwargs):
         super(GCN, self).__init__(**kwargs)
-
         self.inputs = placeholders['features']
         self.input_dim = input_dim
+       
         # self.input_dim = self.inputs.get_shape().as_list()[1]  # To be supported in future Tensorflow versions
         self.output_dim = placeholders['labels'].get_shape().as_list()[1]
         self.placeholders = placeholders
@@ -155,12 +155,12 @@ class GCN(Model):
     def _accuracy(self):
         self.accuracy = masked_accuracy(self.outputs, self.placeholders['labels'],
                                         self.placeholders['labels_mask'])
-
     def _build(self):
 
         self.layers.append(GraphConvolution(input_dim=self.input_dim,
                                             output_dim=FLAGS.hidden1,
-                                            placeholders=self.placeholders,
+                                            placeholders = self.placeholders,
+                                            support=self.placeholders['sub_sampled_support'],
                                             act=tf.nn.relu,
                                             dropout=True,
                                             sparse_inputs=True,
@@ -168,7 +168,8 @@ class GCN(Model):
 
         self.layers.append(GraphConvolution(input_dim=FLAGS.hidden1,
                                             output_dim=self.output_dim,
-                                            placeholders=self.placeholders,
+                                            placeholders = self.placeholders,
+                                            support=self.placeholders['support'],
                                             act=lambda x: x,
                                             dropout=True,
                                             logging=self.logging))

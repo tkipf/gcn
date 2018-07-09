@@ -18,7 +18,11 @@ def show_data_stats(adj, features, y_train, y_val, y_test, train_mask, val_mask,
             print("\tKnown percentage = " + str(known_percent) + "%")
             for i in range(labels.shape[1]):
                 sum_class = sum(labels[:, i])
-                print(str(sum_class) + " of class" + str(i) + " ( " + str(int((sum_class / num_label) * 100)) + "%)")
+                try:
+                    print(str(sum_class) + " of class" + str(i) + " ( " + str(int((sum_class / num_label) * 100)) + "%)")
+                except:
+                    print(str(sum_class))   
+                    print(str(num_label))           
             return known_percent
         else:
             for i in range(labels.shape[1]):

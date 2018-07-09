@@ -6,6 +6,7 @@ FLAGS = flags.FLAGS
 
 
 class Model(object):
+
     def __init__(self, **kwargs):
         allowed_kwargs = {'name', 'logging'}
         for kwarg in kwargs.keys():
@@ -83,6 +84,7 @@ class Model(object):
 
 
 class MLP(Model):
+
     def __init__(self, placeholders, input_dim, **kwargs):
         super(MLP, self).__init__(**kwargs)
 
@@ -106,35 +108,39 @@ class MLP(Model):
                                                   self.placeholders['labels_mask'])
 
     def _accuracy(self):
-        self.accuracy = masked_accuracy(self.outputs, self.placeholders['labels'],
-                                        self.placeholders['labels_mask'])
+        self.accuracy = masked_accuracy(self.outputs, self.placeholders['labels'], self.placeholders['labels_mask'])
 
     def _build(self):
-        self.layers.append(Dense(input_dim=self.input_dim,
-                                 output_dim=FLAGS.hidden1,
-                                 placeholders=self.placeholders,
-                                 act=tf.nn.relu,
-                                 dropout=True,
-                                 sparse_inputs=True,
-                                 logging=self.logging))
+        self.layers.append(
+            Dense(
+                input_dim=self.input_dim,
+                output_dim=FLAGS.hidden1,
+                placeholders=self.placeholders,
+                act=tf.nn.relu,
+                dropout=True,
+                sparse_inputs=True,
+                logging=self.logging))
 
-        self.layers.append(Dense(input_dim=FLAGS.hidden1,
-                                 output_dim=self.output_dim,
-                                 placeholders=self.placeholders,
-                                 act=lambda x: x,
-                                 dropout=True,
-                                 logging=self.logging))
+        self.layers.append(
+            Dense(
+                input_dim=FLAGS.hidden1,
+                output_dim=self.output_dim,
+                placeholders=self.placeholders,
+                act=lambda x: x,
+                dropout=True,
+                logging=self.logging))
 
     def predict(self):
         return tf.nn.softmax(self.outputs)
 
 
 class GCN(Model):
+
     def __init__(self, placeholders, input_dim, **kwargs):
         super(GCN, self).__init__(**kwargs)
         self.inputs = placeholders['features']
         self.input_dim = input_dim
-       
+
         # self.input_dim = self.inputs.get_shape().as_list()[1]  # To be supported in future Tensorflow versions
         self.output_dim = placeholders['labels'].get_shape().as_list()[1]
         self.placeholders = placeholders
@@ -153,26 +159,30 @@ class GCN(Model):
                                                   self.placeholders['labels_mask'])
 
     def _accuracy(self):
-        self.accuracy = masked_accuracy(self.outputs, self.placeholders['labels'],
-                                        self.placeholders['labels_mask'])
+        self.accuracy = masked_accuracy(self.outputs, self.placeholders['labels'], self.placeholders['labels_mask'])
+
     def _build(self):
 
-        self.layers.append(GraphConvolution(input_dim=self.input_dim,
-                                            output_dim=FLAGS.hidden1,
-                                            placeholders = self.placeholders,
-                                            support=self.placeholders['sub_sampled_support'],
-                                            act=tf.nn.relu,
-                                            dropout=True,
-                                            sparse_inputs=True,
-                                            logging=self.logging))
+        self.layers.append(
+            GraphConvolution(
+                input_dim=self.input_dim,
+                output_dim=FLAGS.hidden1,
+                placeholders=self.placeholders,
+                support=self.placeholders['sub_sampled_support'],
+                act=tf.nn.relu,
+                dropout=True,
+                sparse_inputs=True,
+                logging=self.logging))
 
-        self.layers.append(GraphConvolution(input_dim=FLAGS.hidden1,
-                                            output_dim=self.output_dim,
-                                            placeholders = self.placeholders,
-                                            support=self.placeholders['support'],
-                                            act=lambda x: x,
-                                            dropout=True,
-                                            logging=self.logging))
+        self.layers.append(
+            GraphConvolution(
+                input_dim=FLAGS.hidden1,
+                output_dim=self.output_dim,
+                placeholders=self.placeholders,
+                support=self.placeholders['support'],
+                act=lambda x: x,
+                dropout=True,
+                logging=self.logging))
 
     def predict(self):
         return tf.nn.softmax(self.outputs)

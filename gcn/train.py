@@ -1,9 +1,13 @@
 import time
 import tensorflow as tf
+import numpy as np
 from utils import construct_feed_dict
 
+flags = tf.app.flags
+FLAGS = flags.FLAGS
+
+
 def train_model(model_func,
-                hyper_params,
                 num_supports,
                 support,
                 features,
@@ -15,7 +19,7 @@ def train_model(model_func,
                 test_mask,
                 sub_sampled_support=None,
                 VERBOSE_TRAINING=False,
-                seed=13):
+                seed=123):
     tf.set_random_seed(seed)
     # Define placeholders
     placeholders = {
@@ -48,12 +52,12 @@ def train_model(model_func,
     cost_val = []
 
     # Train model
-    for epoch in range(hyper_params['epochs']):
+    for epoch in range(FLAGS.epochs):
 
         t = time.time()
         # Construct feed dictionary
         feed_dict = construct_feed_dict(features, support, y_train, train_mask, sub_sampled_support, placeholders)
-        feed_dict.update({placeholders['dropout']: hyper_params['dropout']})
+        feed_dict.update({placeholders['dropout']: FLAGS.dropout})
         # Training step
         outs = sess.run([model.opt_op, model.loss, model.accuracy], feed_dict=feed_dict)
         # Validation
@@ -65,9 +69,10 @@ def train_model(model_func,
                   "{:.5f}".format(outs[2]), "val_loss=", "{:.5f}".format(cost), "val_acc=", "{:.5f}".format(acc),
                   "time=", "{:.5f}".format(time.time() - t))
 
-        # if epoch > FLAGS.early_stopping and cost_val[-1] > np.mean(cost_val[-(FLAGS.early_stopping+1):-1]):
-        #     print("Early stopping...")
-        #     break
+        if FLAGS.early_stopping is not None and epoch > FLAGS.early_stopping and cost_val[-1] > np.mean(
+                cost_val[-(FLAGS.early_stopping + 1):-1]):
+            print("Early stopping...")
+            break
 
     print("Optimization Finished!")
 

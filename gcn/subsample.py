@@ -9,7 +9,7 @@ random.seed(123)
 #remove columns from adj matrix.
 #TODO needs additional scaling?
 #Be carefull too not modify the initial complete support matrix
-def get_sub_sampled_support_fast(complete_support, node_to_keep):
+def get_sub_sampled_support(complete_support, node_to_keep):
     index_array = complete_support[0][:]  # make a copy to avoid modifying complete support
     values = np.zeros(complete_support[1].shape)
     index_array_sorted = index_array[:, 1].argsort()

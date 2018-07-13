@@ -59,7 +59,8 @@ Classify graph-structured data where the topology(todo check if this is right wo
 Solution:
 
 Extend the existing GCNN model introduced by \citet{kipf2017semi}
- to be able to train without having all the features known and use greedy sampling methods from \citet{DBLP:journals/corr/ChamonR17}
+ to be able to train without having all the features known.
+and use greedy sampling methods from \citet{DBLP:journals/corr/ChamonR17}
  to select which unknown node would be more helpful to get better results. \
  
 1. First the GCNN extension with some experiments is presented. 2. Greedy sampling algorithm  
@@ -67,7 +68,8 @@ Extend the existing GCNN model introduced by \citet{kipf2017semi}
 
 \section*{GCNN}
 \subsection*{Review of Previous Work}
-The first step of this work was to reproduce the results obtained by \citet{kipf2017semi} using the same two layers graph convolutional neural network.
+The first step of this work was to reproduce the results obtained by \citet{kipf2017semi} using the same two-layer graph
+convolutional neural network.
 
 \begin{equation}
 Z = f(X, A) = softmax(\text{\^{A}} ReLU(\text{\^{A}}XW_0))W_1))
@@ -94,14 +96,18 @@ To do so, the adjacency matrix at the first layer is altered by setting the colu
 Z = f(X, A) = softmax(\text{\^{A}} ReLU(\text{\^{A}}_{sampled}XW_0))W_1))
 \end{equation}
 
-This way, only the existing information is propagated and is not diluted by the unknown at the first convolution stage. At the second stage, this mechanism assumes that every node can be used ant the normal adjacency matrix is used. 
-\\This could be fixed by a second analysis of the graph in which nodes who couldn't not be reached by the first convolution (only connected to other unknown) would also have their column set to zero.
+This way, only the existing information is propagated and it is not diluted by the unknown data at the first convolution stage. At the second stage, this mechanism assumes that every node can be used and the normal adjacency matrix is used. %cette phrase est a reformuler, je ne comprends pas ce que tu veux dire
+\\This could be fixed by a second analysis of the graph in which nodes who %that could not
+ couldn't not be reached by the first convolution (%because they were
+ only connected to other unknown) would %pas certaine du would
+  also have their column set to zero.
 %TODO do it
 TODO do it
 \subsection*{Experiments}
 Unless otherwise stated, all experiments were conducted using the Cora dataset, with the same testing/training/validation ratio of $37\%/45\%/18\%$. The black point is the reported result from \citeauthor{kipf2017semi} as a reference.
 \subsubsection*{Sampled GCNN vs GCNN}
-The first experiment is a comparison of the initial GCNN with the new sampled GCNN model, from which not only the labels are missing but also the features \ref{with_test_balanced}. To be able to compare the two, the labels balance was kept and the testing and validation features were not remove for both models. 
+The first experiment is a comparison of the initial GCNN with the new sampled GCNN model with missing features \ref{with_test_balanced}.
+ To be able to compare the two, the label balance was maintained and the testing and validation features were kept, in both models.
 
 \begin{figure}[h]
 \centering
@@ -112,9 +118,12 @@ Experiment 1
 \label{with_test_balanced}
 \end{figure}
 
-The same experiment was made but without the testing and validation features known, for both model \ref{without_test_balanced}. This problem setting is more aligned with the goal of this project.
+The same experiment %un peu raide comme debut de paragraphe... j'irais plutot avec The second experiment was aiming to compare blahblah ou quelque chose du genre, pour faire echo au premier paragraphe
+ was made but without the testing and validation features known, for both model \ref{without_test_balanced}. %phrase a redisegner
+ This problem setting is more aligned with the goal of this project.
 
-Considering the testing/validation vs training ratio, this is a significant reduction of available information during training. However, the sampled model was much more affected than the normal GCNN by this additional restriction. The normal GCNN only looked like it took a drop of 5\% but the overall shape of the curve seems unaffected, whereas the accurcay of the sampled GCNN took a more important drop 
+Considering the testing/validation vs training ratio, this is a significant reduction of available information during training. However, the sampled model was much more affected than the normal GCNN by this additional restriction. The normal GCNN only %j'enleverais le looked like, the normal GCNN tood a 5% drop, but the overall curve shape seemed unafected, ...
+looked like it took a drop of 5\% but the overall shape of the curve seems unaffected, whereas the accuracy of the sampled GCNN took a more significant drop.
 
 \begin{figure}[h]
 \centering
@@ -131,9 +140,15 @@ Experiment 2
 2. Graph connectivity is too sparse and with that little known node as 10-30\%, information can't travel with only two hops and has trouble reaching some nodes. -> Check the topology of misclassified node, how far they are from known ones. todo
 3. The second layer adjacency matrix simplification is bad todo
 
+
+
+
                
 \subsubsection*{Unbalanced Labels}
-In the previous tests, to be consistent with the experiment conducted in the paper, the label balance was maintained thorough the experiment (Except for the 100\% case where every label was included). This is the same experiments but without label balance maintained. Figure \ref{with_test_unbalanced} and figure \ref{without_test_unbalanced} look pretty similar to their corresponding balanced version, respectively figure \ref{with_test_balanced} and figure \ref{without_test_balanced}.
+In the previous tests, to be consistent with the experiment conducted in the paper, the label balance was maintained thorough the experiment (Except for the 100\% case where every label was included). This is the same experiments %We performed the same experiment,
+ but without %maintaining 
+ label balance. Figure \ref{with_test_unbalanced} and figure \ref{without_test_unbalanced} look pretty %quite
+  similar to their corresponding balanced version, respectively figure \ref{with_test_balanced} and figure \ref{without_test_balanced}.
 
 \begin{figure}[h]
 \centering
@@ -154,7 +169,11 @@ Experiment 4
 \end{figure}
 
 \subsubsection*{Identity Features}
-The last experiment was to replace the feature matrix by an identity matrix, making the identity of the nodes the only information accessible to the GCNN. The results were compared to the balanced results from figure \ref{with_test_balanced} and figure \ref{without_test_balanced}. In the case of with testing and validation features known, the identity matrix seems to suffer a relatively constant loss of around 7\%. A uprising result is that in the case of removed testing and validatin feaetures, the sampled GCNN performed worst than sampled GCNN with identity features. This could maybe be explained by the wrong second layer adjacency matrix(?).
+The last experiment was to replace the feature matrix by an identity matrix, making the identity of the nodes the only information accessible to the GCNN. The results were compared to the balanced results from figure \ref{with_test_balanced} and figure \ref{without_test_balanced}. In the case %weird ici... When testing and validation features were known, the identity...
+of with testing and validation features known, the identity matrix seems %seemed
+ to suffer a relatively constant loss of around 7\%. A surprising result is that in the case of removed testing and validation features, the sampled GCNN performed worst than sampled GCNN with identity features. %cette phrase n'est pas syntaxiquement correcte et pas claire
+  This could maybe %potentially
+ be explained by the wrong second layer adjacency matrix(?).
 
 \begin{figure}[h]
 \centering
@@ -173,6 +192,7 @@ Experiment 6
 }
 \label{without_test_balanced_Iden}
 \end{figure}
+
 
 
 \section*{Greedy Sampling}

@@ -10,9 +10,16 @@ def get_model_and_support(model_string, adj, initial_train, train_mask, val_mask
             sub_sampled_support = support
         else:  # cut the test and validation features
             initial_sample_list = get_list_from_mask(initial_train)
-            sub_sampled_support = [
-                get_sub_sampled_support_fast(complete_support=support[0], node_to_keep=initial_sample_list)
+            sub_sampled_support, _ = [
+                get_sub_sampled_support(complete_support=support[0], node_to_keep=initial_sample_list)
             ]
+            A = adj.toarray()[initial_sample_list]
+            one_hop_sample_list = np.argwhere(np.sum(A, axis=0))
+            sub_sampled_support_second = [
+                get_sub_sampled_support(complete_support=support[0], node_to_keep=one_hop_sample_list)
+            ]
+
+        return model_func, sub_sampled_support_second, sub_sampled_support, num_supports
         num_supports = 1
         model_func = GCN
     elif model_string == 'gcn_cheby':
@@ -33,9 +40,14 @@ def get_model_and_support(model_string, adj, initial_train, train_mask, val_mask
         else:
             initial_sample_list = get_list_from_mask(train_mask)
 
-        sub_sampled_support = [
-            get_sub_sampled_support_fast(complete_support=support[0], node_to_keep=initial_sample_list)
+        sub_sampled_support = [get_sub_sampled_support(complete_support=support[0], node_to_keep=initial_sample_list)]
+        A = adj.toarray()[initial_sample_list]
+        one_hop_sample_list = np.argwhere(np.sum(A, axis=0))
+        sub_sampled_support_second = [
+            get_sub_sampled_support(complete_support=support[0], node_to_keep=one_hop_sample_list)
         ]
+
+        return model_func, sub_sampled_support_second, sub_sampled_support, num_supports
         #modify_features_that_shouldnt_change_anything(features,initial_sample_list)
 
     else:

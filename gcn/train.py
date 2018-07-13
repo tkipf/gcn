@@ -44,8 +44,8 @@ def train_model(model_func,
     def evaluate(features, support, labels, mask, sub_sampled_support, placeholders):
         t_test = time.time()
         feed_dict_val = construct_feed_dict(features, support, labels, mask, sub_sampled_support, placeholders)
-        outs_val = sess.run([model.loss, model.accuracy], feed_dict=feed_dict_val)
-        return outs_val[0], outs_val[1], (time.time() - t_test)
+        outs_val = sess.run([model.loss, model.accuracy, model.predict()], feed_dict=feed_dict_val)
+        return outs_val[0], outs_val[1], (time.time() - t_test), outs_val[2]
 
     # Init variables
     sess.run(tf.global_variables_initializer())
@@ -62,7 +62,7 @@ def train_model(model_func,
         # Training step
         outs = sess.run([model.opt_op, model.loss, model.accuracy], feed_dict=feed_dict)
         # Validation
-        cost, acc, duration = evaluate(features, support, y_val, val_mask, sub_sampled_support, placeholders)
+        cost, acc, duration, _ = evaluate(features, support, y_val, val_mask, sub_sampled_support, placeholders)
         cost_val.append(cost)
         if VERBOSE_TRAINING:
             # Print results
@@ -78,15 +78,13 @@ def train_model(model_func,
     print("Optimization Finished!")
 
     # Testing
-    test_cost, test_acc, test_duration = evaluate(features, support, y_test, test_mask, sub_sampled_support,
+    test_cost, test_acc, test_duration, predicted_labels = evaluate(features, support, y_test, test_mask, sub_sampled_support,
                                                   placeholders)
     print("Test set results:", "cost=", "{:.5f}".format(test_cost), "accuracy=", "{:.5f}".format(test_acc), "time=",
           "{:.5f}".format(test_duration))
     if return_classified_node:
-        feed_dict_val = construct_feed_dict(features, support, y_test, test_mask, sub_sampled_support, placeholders)
-        predicted = sess.run(model.predict(), feed_dict=feed_dict)
-        x = (np.equal(np.argmax(predicted, axis=1), np.argmax(y_test, axis=1)))
-        list_node_correctly_classified = np.argwhere(x).reshape(-1)
+        labels_equal = (np.equal(np.argmax(predicted_labels, axis=1), np.argmax(y_test, axis=1)))
+        list_node_correctly_classified = np.argwhere(labels_equal).reshape(-1)
         list_node_correctly_classified_test = list(filter(lambda x: test_mask[x], list(list_node_correctly_classified)))
         return test_acc, list_node_correctly_classified_test
     tf.reset_default_graph()

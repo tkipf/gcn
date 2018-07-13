@@ -17,12 +17,12 @@ settings = graph_settings()['default']
 set_tf_flags(settings['params'], flags)
 
 WITH_TEST = False
-MAINTAIN_LABEL_BALANCE = False
-MAX_LABEL_PERCENT = 40
+MAINTAIN_LABEL_BALANCE = True
+MAX_LABEL_PERCENT = 17
 
 # Verbose settings
 SHOW_TEST_VAL_DATASET_STATS = True
-VERBOSE_TRAINING = True
+VERBOSE_TRAINING = False
 
 # Random seed
 seed = settings['seed']
@@ -60,4 +60,5 @@ test_acc, list_node_correctly_classified = train_model(
     settings['seed'],
     return_classified_node=True)
 
-stats = get_classification_stats(adj.toarray(), list_node_correctly_classified, get_list_from_mask(test_mask), get_list_from_mask(train_mask))
+stats = get_classification_stats(adj.toarray(), list_node_correctly_classified, get_list_from_mask(test_mask),
+                                 get_list_from_mask(train_mask))

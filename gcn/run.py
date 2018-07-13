@@ -9,7 +9,7 @@ from train import train_model
 from output_stats import *
 from build_support import get_model_and_support
 from settings import *
-
+from classification_stats import get_classification_stats
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -44,5 +44,20 @@ known_percent = show_data_stats(adj, features, y_train, y_val, y_test, train_mas
 
 model_func, support, sub_sampled_support, num_supports = get_model_and_support(
     'gcn_subsampled', adj, initial_train_mask, train_mask, val_mask, test_mask, WITH_TEST)
-train_model(model_func, num_supports, support, features, y_train, y_val, y_test, train_mask, val_mask, test_mask,
-            sub_sampled_support, VERBOSE_TRAINING, settings['seed'])
+test_acc, list_node_correctly_classified = train_model(
+    model_func,
+    num_supports,
+    support,
+    features,
+    y_train,
+    y_val,
+    y_test,
+    train_mask,
+    val_mask,
+    test_mask,
+    sub_sampled_support,
+    VERBOSE_TRAINING,
+    settings['seed'],
+    return_classified_node=True)
+
+stats = get_classification_stats(adj.toarray(), list_node_correctly_classified, get_list_from_mask(test_mask), get_list_from_mask(train_mask))

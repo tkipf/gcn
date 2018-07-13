@@ -19,7 +19,8 @@ def train_model(model_func,
                 test_mask,
                 sub_sampled_support=None,
                 VERBOSE_TRAINING=False,
-                seed=123):
+                seed=123,
+                return_classified_node=False):
     tf.set_random_seed(seed)
     # Define placeholders
     placeholders = {
@@ -81,5 +82,12 @@ def train_model(model_func,
                                                   placeholders)
     print("Test set results:", "cost=", "{:.5f}".format(test_cost), "accuracy=", "{:.5f}".format(test_acc), "time=",
           "{:.5f}".format(test_duration))
+    if return_classified_node:
+        feed_dict_val = construct_feed_dict(features, support, y_test, test_mask, sub_sampled_support, placeholders)
+        predicted = sess.run(model.predict(), feed_dict=feed_dict)
+        x = (np.equal(np.argmax(predicted, axis=1), np.argmax(y_test, axis=1)))
+        list_node_correctly_classified = np.argwhere(x).reshape(-1)
+        list_node_correctly_classified_test = list(filter(lambda x: test_mask[x], list(list_node_correctly_classified)))
+        return test_acc, list_node_correctly_classified_test
     tf.reset_default_graph()
     return test_acc

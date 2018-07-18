@@ -40,7 +40,7 @@ def graph_settings():
     settings['Kipf']['params']['weight_decay'] = 5e-4
     settings['Kipf']['params']['dropout'] = 0.5
     settings['Kipf']['params']['early_stopping'] = 30
-    settings['Kipf']['classifier'] = 'gcn'
+    settings['Kipf']['classifier'] = 'dense'
     settings['Kipf']['with_test'] = True
     settings['Kipf']['maintain_label_balance'] = True
     settings['Kipf']['max_label_percent'] = 27

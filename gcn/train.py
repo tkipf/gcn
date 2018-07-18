@@ -19,7 +19,7 @@ def train_model(model_func,
                 test_mask,
                 sub_sampled_support=None,
                 VERBOSE_TRAINING=False,
-                seed=123,
+                seed=13,
                 return_classified_node=False):
     tf.set_random_seed(seed)
     # Define placeholders
@@ -86,6 +86,7 @@ def train_model(model_func,
         labels_equal = (np.equal(np.argmax(predicted_labels, axis=1), np.argmax(y_test, axis=1)))
         list_node_correctly_classified = np.argwhere(labels_equal).reshape(-1)
         list_node_correctly_classified_test = list(filter(lambda x: test_mask[x], list(list_node_correctly_classified)))
+        tf.reset_default_graph()
         return test_acc, list_node_correctly_classified_test
     tf.reset_default_graph()
     return test_acc

@@ -9,7 +9,8 @@ from train import train_model
 from output_stats import *
 from build_support import get_model_and_support
 from settings import *
-from classification_stats import get_classification_stats
+from classification_stats import get_classification_stats, print_classification_stats
+from graph_processing import get_adj_powers, get_num_paths_to_known
 # Settings
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -17,11 +18,12 @@ settings = graph_settings()['default']
 set_tf_flags(settings['params'], flags)
 
 WITH_TEST = False
-MAINTAIN_LABEL_BALANCE = True
-MAX_LABEL_PERCENT = 17
+MAINTAIN_LABEL_BALANCE = False
+MAX_LABEL_PERCENT = 20
+#75
 
 # Verbose settings
-SHOW_TEST_VAL_DATASET_STATS = True
+SHOW_TEST_VAL_DATASET_STATS = False
 VERBOSE_TRAINING = False
 
 # Random seed
@@ -31,7 +33,8 @@ np.random.seed(seed)
 # Load data
 adj, features, y_train, y_val, y_test, initial_train_mask, val_mask, test_mask = load_data(FLAGS.dataset)
 train_mask = get_train_mask(MAX_LABEL_PERCENT, y_train, initial_train_mask, MAINTAIN_LABEL_BALANCE)
-
+list_adj = get_adj_powers(adj.toarray())
+paths_to_known_list = get_num_paths_to_known(get_list_from_mask(train_mask), list_adj)
 # Partitioning check, ensures that no mask overlaps and that there is a label for every input in the maskS.
 print_partition_index(train_mask, "Train", y_train)
 print_partition_index(val_mask, "Val", y_val)
@@ -57,8 +60,10 @@ test_acc, list_node_correctly_classified = train_model(
     test_mask,
     sub_sampled_support,
     VERBOSE_TRAINING,
-    settings['seed'],
+    seed=seed,
     return_classified_node=True)
 
-stats = get_classification_stats(adj.toarray(), list_node_correctly_classified, get_list_from_mask(test_mask),
-                                 get_list_from_mask(train_mask))
+correct_paths_to_known, incorrect_paths_to_known = get_classification_stats(list_node_correctly_classified,
+                                                                            get_list_from_mask(test_mask),
+                                                                            paths_to_known_list)
+print_classification_stats(correct_paths_to_known, incorrect_paths_to_known)

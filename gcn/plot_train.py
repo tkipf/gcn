@@ -8,7 +8,6 @@ import pickle as pk
 import os
 from subsample import *
 from utils import *
-from models import GCN, MLP
 from train import train_model
 from output_stats import *
 from build_support import get_model_and_support
@@ -76,8 +75,8 @@ def train_and_save_results(adj,
                         sub_sampled_support,
                         VERBOSE_TRAINING,
                         seed=settings['seed'],
-                        return_classified_node=True)
-
+                        list_adj=stats_adj_helper)
+                    print(test_acc)
                     result.append((model_gcn, known_percent, test_acc))
                     correct_paths_to_known, incorrect_paths_to_known = get_classification_stats(
                         list_node_correctly_classified, get_list_from_mask(test_mask), paths_to_known_list)
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     # Settings
     flags = tf.app.flags
     FLAGS = flags.FLAGS
-    settings = graph_settings()['quick']
+    settings = graph_settings()['default']
     set_tf_flags(settings['params'], flags)
     # Verbose settings
     SHOW_TEST_VAL_DATASET_STATS = False
@@ -122,11 +121,12 @@ if __name__ == "__main__":
     # Some preprocessing
     features = preprocess_features(features)
 
-    labels_percent_list = [0.1, 2, 5, 7, 10, 20, 30, 40, 50, 60, 75, 100]
+    labels_percent_list = [0.1, 5, 10, 20, 40, 50, 75, 100]
     list_adj = get_adj_powers(adj.toarray())
     maintain_label_balance_list = [False, True]
     with_test_features_list = [False, True]
-    models_list = ['gcn_subsampled', 'gcn']
+    models_list = ['gcn_subsampled', 'gcn','dense','k-nn']
+    
     # RUN
     train_and_save_results(
         adj,

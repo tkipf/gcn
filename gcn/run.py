@@ -19,7 +19,7 @@ set_tf_flags(settings['params'], flags)
 
 WITH_TEST = False
 MAINTAIN_LABEL_BALANCE = False
-MAX_LABEL_PERCENT = 20
+MAX_LABEL_PERCENT = 80
 #75
 
 # Verbose settings
@@ -46,7 +46,7 @@ known_percent = show_data_stats(adj, features, y_train, y_val, y_test, train_mas
                                 SHOW_TEST_VAL_DATASET_STATS)
 
 model_func, support, sub_sampled_support, num_supports = get_model_and_support(
-    'gcn_subsampled', adj, initial_train_mask, train_mask, val_mask, test_mask, WITH_TEST)
+    'k-nn', adj, initial_train_mask, train_mask, val_mask, test_mask, WITH_TEST)
 test_acc, list_node_correctly_classified = train_model(
     model_func,
     num_supports,
@@ -61,8 +61,8 @@ test_acc, list_node_correctly_classified = train_model(
     sub_sampled_support,
     VERBOSE_TRAINING,
     seed=seed,
-    return_classified_node=True)
-
+    list_adj=list_adj)
+print(str(test_acc) + "%")
 correct_paths_to_known, incorrect_paths_to_known = get_classification_stats(list_node_correctly_classified,
                                                                             get_list_from_mask(test_mask),
                                                                             paths_to_known_list)

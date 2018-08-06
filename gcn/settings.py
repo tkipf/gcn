@@ -20,7 +20,7 @@ def graph_settings():
     # DEFAULT PARAMETERS                              #
     ###########################################################
 
-    settings['default']['params']['dataset'] = 'cora'  # 'cora', 'citeseer', 'pubmed'
+    settings['default']['params']['dataset'] = 'citeseer'  # 'cora', 'citeseer', 'pubmed'
     settings['default']['params']['epochs'] = 300
     settings['default']['params']['learning_rate'] = 0.01
     settings['default']['params']['hidden1'] = 16

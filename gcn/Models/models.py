@@ -81,8 +81,6 @@ class Model(object):
         save_path = "tmp/%s.ckpt" % self.name
         saver.restore(sess, save_path)
         print("Model restored from file: %s" % save_path)
-
-
 class MLP(Model):
 
     def __init__(self, placeholders, input_dim, **kwargs):
@@ -186,3 +184,4 @@ class GCN(Model):
 
     def predict(self):
         return tf.nn.softmax(self.outputs)
+

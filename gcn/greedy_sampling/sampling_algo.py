@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import combinations
 from sampling_algo_util import *
+import numpy.linalg as LA
 
 
 def greedy_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, H_h: np.array, cov_x: np.array,
@@ -18,6 +19,27 @@ def greedy_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, 
         remaining_node.remove(u)
 
     return G_subset
+
+
+def leverage_algo(V_ksparse: np.array, number_node_sampled: int) -> list:
+    norms = LA.norm(V_ksparse, axis=1)
+    leverage_subset = np.argsort(norms)[-number_node_sampled:]
+    return list(leverage_subset)
+
+
+def random_leverage_algo(V_ksparse, number_node_sampled):
+    norms = LA.norm(V_ksparse, axis=1)
+    normalized_norms = norms / sum(norms)
+    choices = list(range(0, V_ksparse.shape[0]))
+    print(choices)
+    list_random_leverage = np.random.choice(choices, number_node_sampled, replace=False, p=normalized_norms)
+    print(list_random_leverage)
+    return list(list_random_leverage)
+
+
+def uniform_random_algo(number_node_sampled, num_nodes):
+    choices = list(range(0, num_nodes))
+    return [int(i) for i in np.random.choice(choices, number_node_sampled, replace=False)]
 
 
 def brute_force_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, H_h: np.array, cov_x: np.array,

@@ -5,6 +5,8 @@ from random import randrange
 from numpy.linalg import inv
 import scipy.sparse as sp
 
+Erdos_Renyi_Prob = 0.2
+
 
 def normalize_adj(adj):
     adj = sp.coo_matrix(adj)
@@ -44,13 +46,14 @@ def plot_graph(graph):
 
 # Erdos Renyi graph: Add an edge with prob = 0.2
 def generate_Erdos_Renyi_graph(n):
-    Erdos_Renyi_graph = nx.Graph()
-    for node_pair in combinations(range(n), 2):  # Generate each possible egde
-        if randrange(5) == 1:  # p = 0.2
-            Erdos_Renyi_graph.add_edge(node_pair[0], node_pair[1])
-
-    if (len(Erdos_Renyi_graph.nodes()) < n):  # Recursivly generate a new graph until all nodes are connected
-        del Erdos_Renyi_graph  #  Delete the graph to avoid using memeroy unnecessarily
-        return generate_Erdos_Renyi_graph(n)
-
+    Erdos_Renyi_graph = nx.erdos_renyi_graph(n, Erdos_Renyi_Prob)
     return Erdos_Renyi_graph
+
+
+#preferential attachment model, in which nodes are added
+# one at a time and connected to a node already in the graph with
+# probability proportional to its degree
+def generate_pref_attachment_graph(n):
+    m0 = 1
+    Pref_Attach_graph = nx.barabasi_albert_graph(n, m0)
+    return Pref_Attach_graph

@@ -4,8 +4,7 @@ from sampling_algo_util import *
 import numpy.linalg as LA
 
 
-def greedy_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, H_h: np.array, cov_x: np.array,
-                cov_w: np.array, W: np.array, number_node_sampled: int, num_nodes: int) -> list:
+def greedy_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_node_sampled, num_nodes):
     # Variable initialisation
     G_subset = []
     remaining_node = list(range(0, num_nodes))
@@ -21,7 +20,7 @@ def greedy_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, 
     return G_subset
 
 
-def leverage_algo(V_ksparse: np.array, number_node_sampled: int) -> list:
+def leverage_algo(V_ksparse, number_node_sampled):
     norms = LA.norm(V_ksparse, axis=1)
     leverage_subset = np.argsort(norms)[-number_node_sampled:]
     return list(leverage_subset)
@@ -40,8 +39,7 @@ def uniform_random_algo(number_node_sampled, num_nodes):
     return [int(i) for i in np.random.choice(choices, number_node_sampled, replace=False)]
 
 
-def brute_force_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, H_h: np.array, cov_x: np.array,
-                     cov_w: np.array, W: np.array, number_node_sampled: int, num_nodes: int) -> (list, dict):
+def brute_force_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_node_sampled, num_nodes):
     subset_scores = {}
     optimal_subset = []
     optimal_K_T = get_upper_bound_trace_K(W, cov_x)
@@ -61,5 +59,5 @@ def brute_force_algo(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.ar
     return optimal_subset, subset_scores
 
 
-def get_relative_suboptimality(optimal_K_T: float, f_K_T: float, empty_K_T: float) -> float:
+def get_relative_suboptimality(optimal_K_T, f_K_T, empty_K_T):
     return (f_K_T - optimal_K_T) / (empty_K_T - optimal_K_T)

@@ -2,9 +2,8 @@ import numpy as np
 from numpy.linalg import inv
 
 
-
 # W = V_k_H * H_H * H * K_k
-def get_W(VH: np.array, H_h: np.array, H: np.array, V: np.array) -> np.array:
+def get_W(VH, H_h, H, V) -> np.array:
     a = np.matmul(VH, H_h)
     b = np.matmul(a, H)
     W = np.matmul(b, V)
@@ -12,7 +11,7 @@ def get_W(VH: np.array, H_h: np.array, H: np.array, V: np.array) -> np.array:
 
 
 # Returns the index of the best node to add to the sampling set
-def argmax(K: np.array, W: np.array, cov_w: np.array, remaining_node: list, get_v) -> int:
+def argmax(K, W, cov_w, remaining_node, get_v):
     u = (0, -1)  # score, index of the best node
     for candidate in remaining_node:
         v_u, v_u_H = get_v(candidate)
@@ -26,7 +25,7 @@ def argmax(K: np.array, W: np.array, cov_w: np.array, remaining_node: list, get_
     return u[1]
 
 
-def update_K(K: np.array, W: np.array, cov_w: np.array, u: int, get_v) -> np.array:  #Should be O(K^2)
+def update_K(K, W, cov_w, u, get_v):  #Should be O(K^2)
     v_u, v_u_H = get_v(u)
     numerator = (((K * v_u) * v_u_H) * K)
     lamda_inv = 1.0 / float(cov_w[u][u])  # get lam^(-1)_w,u should always be the same
@@ -36,13 +35,12 @@ def update_K(K: np.array, W: np.array, cov_w: np.array, u: int, get_v) -> np.arr
     return K - x
 
 
-def get_upper_bound_trace_K(W: np.array, cov_x: np.array) -> float:
+def get_upper_bound_trace_K(W, cov_x):
     upper_bound_matrix = np.matrix(W * cov_x)
     return float(upper_bound_matrix.trace())
 
 
-def get_MSE_score(V_ksparse: np.array, V_ksparse_H: np.array, get_v, H: np.array, H_h: np.array, cov_x: np.array,
-                  cov_w: np.array, possible_set: list) -> float:
+def get_MSE_score(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, possible_set):
     inv_cov_x = inv(cov_x)
     for i in possible_set:
         v_i, v_i_H = get_v(i)

@@ -3,7 +3,7 @@ from numpy.linalg import inv
 
 
 # W = V_k_H * H_H * H * K_k
-def get_W(VH, H_h, H, V) -> np.array:
+def get_W(VH, H_h, H, V):
     a = np.matmul(VH, H_h)
     b = np.matmul(a, H)
     W = np.matmul(b, V)

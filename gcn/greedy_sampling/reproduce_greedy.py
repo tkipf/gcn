@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from graph_generator import generate_Erdos_Renyi_graph, generate_pref_attachment_graph, generate_random_graph, get_sparse_eigen_decomposition
 from linear_H import get_identity_H
 from signal_generator import get_random_signal_zero_mean_circular

@@ -42,7 +42,7 @@ def simulate(graph_gen, result_dict):
     H, H_h = get_identity_H(NUM_NODES)
 
     # Random signal and noise vectors
-    x, cov_x = get_random_signal_zero_mean_circular(1, NUM_NODES)
+    x, cov_x = get_random_signal_zero_mean_circular(1.0, NUM_NODES)
     w, cov_w = get_random_signal_zero_mean_circular(NOISE_CONSTANT, NUM_NODES)
 
     # Noisy observation

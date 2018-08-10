@@ -31,9 +31,7 @@ def random_leverage_algo(V_ksparse, number_node_sampled):
     norms = LA.norm(V_ksparse, axis=1)
     normalized_norms = norms / sum(norms)
     choices = list(range(0, V_ksparse.shape[0]))
-    print(choices)
     list_random_leverage = np.random.choice(choices, number_node_sampled, replace=False, p=normalized_norms)
-    print(list_random_leverage)
     return list(list_random_leverage)
 
 

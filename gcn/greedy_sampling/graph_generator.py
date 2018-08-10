@@ -57,3 +57,8 @@ def generate_pref_attachment_graph(n):
     m0 = 1
     Pref_Attach_graph = nx.barabasi_albert_graph(n, m0)
     return Pref_Attach_graph
+
+
+def generate_random_graph(n):
+    Random_graph = nx.erdos_renyi_graph(n, 0.5)
+    return Random_graph

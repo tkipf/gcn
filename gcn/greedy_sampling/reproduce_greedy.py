@@ -16,8 +16,8 @@ NUM_NODES = 20  # Size of graph generated
 NOISE_CONSTANT = 10e-2
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
-NUM_SIMULATIONS = 30
-CORES = 4
+NUM_SIMULATIONS = 100
+CORES = 8
 
 simul_info = {
     "num_nodes": NUM_NODES,
@@ -93,7 +93,7 @@ def simulate(graph_gen, num_iter):
     return simul_result_dict
 
 
-want_multiprocessing = False
+want_multiprocessing = True
 
 for graph_gen, result_dict in [
     (generate_Erdos_Renyi_graph, relative_sub_Erdos)
@@ -112,6 +112,7 @@ for graph_gen, result_dict in [
                 result_dict['deterministic'] += (dict_simul['deterministic'])
                 result_dict['random_leverage'] += (dict_simul['random_leverage'])
                 result_dict['uniform_random'] += (dict_simul['uniform_random'])
+	    pool.terminate()    
     else:
         dicts = simulate(graph_gen, NUM_SIMULATIONS)
         result_dict['greedy'].append(dicts['greedy'])

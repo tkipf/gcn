@@ -16,8 +16,8 @@ NUM_NODES = 20  # Size of graph generated
 NOISE_CONSTANT = 10e-2
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
-NUM_SIMULATIONS = 100
-CORES = 8
+NUM_SIMULATIONS = 1000
+CORES = 10
 
 simul_info = {
     "num_nodes": NUM_NODES,
@@ -27,21 +27,21 @@ simul_info = {
     'time': time.time()
 }
 # RESULT STORING ARRAYS
-relative_sub_Erdos = {}
-relative_sub_Pref = {}
-reltive_sub_Random = {}
+relative_sub_Erdos = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
+relative_sub_Pref = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
+reltive_sub_Random = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
 
 
 def simulate(graph_gen, num_iter):
     simul_result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
     test_time = time.time()
     for i in range(num_iter):
-       
+
         # Generate the graphs.
         graph = graph_gen(NUM_NODES)
         # Compute spectral properties of graphs.
         V_ksparse, V_ksparse_H, get_v = get_sparse_eigen_decomposition(graph, K_sparse)
-        
+
         # Linear transformation of the signal
         H, H_h = get_identity_H(NUM_NODES)
 
@@ -54,24 +54,23 @@ def simulate(graph_gen, num_iter):
 
         # Pre computation
         W = get_W(V_ksparse_H, H_h, H, V_ksparse)
-        
+
         # Get sampling selected by greedy algorithm
         greedy_subset = greedy_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_node_sampled,
                                     NUM_NODES)
-        
+
         leverage_subset = leverage_algo(V_ksparse, number_node_sampled)
-        
+
         random_leverage_subset = random_leverage_algo(V_ksparse, number_node_sampled)
-        
+
         uniform_random_subset = uniform_random_algo(number_node_sampled, NUM_NODES)
-        
+
         optimal_subset, subset_scores = brute_force_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W,
                                                          number_node_sampled, NUM_NODES)
-        
+
         empty_set_K_T = subset_scores[str([])]
         optimal_K_T = subset_scores[str(list(sorted(optimal_subset)))]
-        
-        
+
         greedy_K_T = subset_scores[str(list(sorted(greedy_subset)))]
         leverage_K_T = subset_scores[str(list(sorted(leverage_subset)))]
         random_leverage_K_T = subset_scores[str(list(sorted(random_leverage_subset)))]
@@ -95,11 +94,9 @@ def simulate(graph_gen, num_iter):
 
 want_multiprocessing = True
 
-for graph_gen, result_dict in [
-    (generate_Erdos_Renyi_graph, relative_sub_Erdos)
-        #,(generate_pref_attachment_graph, relative_sub_Pref), (generate_random_graph, reltive_sub_Random)
-]:
-    result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
+for graph_gen, result_dict in [(generate_Erdos_Renyi_graph, relative_sub_Erdos),
+                               (generate_pref_attachment_graph, relative_sub_Pref), (generate_random_graph,
+                                                                                     reltive_sub_Random)]:
     if want_multiprocessing:
         num_iter = int(NUM_SIMULATIONS / CORES)
         pool = mp.Pool(processes=CORES)
@@ -112,7 +109,7 @@ for graph_gen, result_dict in [
             result_dict['deterministic'] += (dict_simul['deterministic'])
             result_dict['random_leverage'] += (dict_simul['random_leverage'])
             result_dict['uniform_random'] += (dict_simul['uniform_random'])
-	    
+
         pool.terminate()
     else:
         dicts = simulate(graph_gen, NUM_SIMULATIONS)
@@ -120,8 +117,6 @@ for graph_gen, result_dict in [
         result_dict['deterministic'].append(dicts['deterministic'])
         result_dict['random_leverage'].append(dicts['random_leverage'])
         result_dict['uniform_random'].append(dicts['uniform_random'])
-
-    print(result_dict)
 
 done = time.time()
 elapsed = done - simul_info['time']

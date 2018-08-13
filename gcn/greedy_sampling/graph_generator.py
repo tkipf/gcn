@@ -13,9 +13,10 @@ def normalize_adj(adj):
     rowsum = np.array(adj.sum(1))
     d_inv_sqrt = np.power(rowsum, -0.5).flatten()
     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
-    d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
-    return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).toarray()
-
+    d_mat_inv_sqrt = np.diag(d_inv_sqrt) 
+    #d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
+    #return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).toarray()
+    return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt) 
 
 def get_sparse_eigen_decomposition(graph, K):
     adj = nx.adjacency_matrix(graph).toarray()

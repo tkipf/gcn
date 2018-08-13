@@ -102,17 +102,18 @@ for graph_gen, result_dict in [
     result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
     if want_multiprocessing:
         num_iter = int(NUM_SIMULATIONS / CORES)
-        with mp.Pool(processes=CORES) as pool:
-            pool_results = [pool.apply_async(simulate, (graph_gen, num_iter)) for indices in range(CORES)]
+        pool = mp.Pool(processes=CORES)
+        pool_results = [pool.apply_async(simulate, (graph_gen, num_iter)) for indices in range(CORES)]
 
-            for pr in pool_results:
-                dict_simul = pr.get()
-                print(dict_simul['time'])
-                result_dict['greedy'] += (dict_simul['greedy'])
-                result_dict['deterministic'] += (dict_simul['deterministic'])
-                result_dict['random_leverage'] += (dict_simul['random_leverage'])
-                result_dict['uniform_random'] += (dict_simul['uniform_random'])
-	    pool.terminate()    
+        for pr in pool_results:
+            dict_simul = pr.get()
+            print(dict_simul['time'])
+            result_dict['greedy'] += (dict_simul['greedy'])
+            result_dict['deterministic'] += (dict_simul['deterministic'])
+            result_dict['random_leverage'] += (dict_simul['random_leverage'])
+            result_dict['uniform_random'] += (dict_simul['uniform_random'])
+	    
+        pool.terminate()
     else:
         dicts = simulate(graph_gen, NUM_SIMULATIONS)
         result_dict['greedy'].append(dicts['greedy'])

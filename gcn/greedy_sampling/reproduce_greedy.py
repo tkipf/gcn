@@ -33,63 +33,67 @@ reltive_sub_Random = {'greedy': [], 'deterministic': [], 'random_leverage': [], 
 
 
 def simulate(graph_gen, num_iter):
-    simul_result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
-    test_time = time.time()
-    for i in range(num_iter):
+    try:
+        simul_result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
+        test_time = time.time()
+        for i in range(num_iter):
 
-        # Generate the graphs.
-        graph = graph_gen(NUM_NODES)
-        # Compute spectral properties of graphs.
-        V_ksparse, V_ksparse_H, get_v = get_sparse_eigen_decomposition(graph, K_sparse)
+            # Generate the graphs.
+            graph = graph_gen(NUM_NODES)
+            # Compute spectral properties of graphs.
+            V_ksparse, V_ksparse_H, get_v = get_sparse_eigen_decomposition(graph, K_sparse)
 
-        # Linear transformation of the signal
-        H, H_h = get_identity_H(NUM_NODES)
+            # Linear transformation of the signal
+            H, H_h = get_identity_H(NUM_NODES)
 
-        # Random signal and noise vectors
-        x, cov_x = get_random_signal_zero_mean_circular(1.0, NUM_NODES)
-        w, cov_w = get_random_signal_zero_mean_circular(NOISE_CONSTANT, NUM_NODES)
+            # Random signal and noise vectors
+            x, cov_x = get_random_signal_zero_mean_circular(1.0, NUM_NODES)
+            w, cov_w = get_random_signal_zero_mean_circular(NOISE_CONSTANT, NUM_NODES)
 
-        # Noisy observation
-        y = x + w
+            # Noisy observation
+            y = x + w
 
-        # Pre computation
-        W = get_W(V_ksparse_H, H_h, H, V_ksparse)
+            # Pre computation
+            W = get_W(V_ksparse_H, H_h, H, V_ksparse)
 
-        # Get sampling selected by greedy algorithm
-        greedy_subset = greedy_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_node_sampled,
-                                    NUM_NODES)
+            # Get sampling selected by greedy algorithm
+            greedy_subset = greedy_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_node_sampled,
+                                        NUM_NODES)
 
-        leverage_subset = leverage_algo(V_ksparse, number_node_sampled)
+            leverage_subset = leverage_algo(V_ksparse, number_node_sampled)
 
-        random_leverage_subset = random_leverage_algo(V_ksparse, number_node_sampled)
+            random_leverage_subset = random_leverage_algo(V_ksparse, number_node_sampled)
 
-        uniform_random_subset = uniform_random_algo(number_node_sampled, NUM_NODES)
+            uniform_random_subset = uniform_random_algo(number_node_sampled, NUM_NODES)
 
-        optimal_subset, subset_scores = brute_force_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W,
-                                                         number_node_sampled, NUM_NODES)
+            optimal_subset, subset_scores = brute_force_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W,
+                                                            number_node_sampled, NUM_NODES)
 
-        empty_set_K_T = subset_scores[str([])]
-        optimal_K_T = subset_scores[str(list(sorted(optimal_subset)))]
+            empty_set_K_T = subset_scores[str([])]
+            optimal_K_T = subset_scores[str(list(sorted(optimal_subset)))]
 
-        greedy_K_T = subset_scores[str(list(sorted(greedy_subset)))]
-        leverage_K_T = subset_scores[str(list(sorted(leverage_subset)))]
-        random_leverage_K_T = subset_scores[str(list(sorted(random_leverage_subset)))]
-        uniform_random_K_T = subset_scores[str(list(sorted(uniform_random_subset)))]
+            greedy_K_T = subset_scores[str(list(sorted(greedy_subset)))]
+            leverage_K_T = subset_scores[str(list(sorted(leverage_subset)))]
+            random_leverage_K_T = subset_scores[str(list(sorted(random_leverage_subset)))]
+            uniform_random_K_T = subset_scores[str(list(sorted(uniform_random_subset)))]
 
-        score_greedy = get_relative_suboptimality(optimal_K_T, greedy_K_T, empty_set_K_T)
-        score_leverage = get_relative_suboptimality(optimal_K_T, leverage_K_T, empty_set_K_T)
-        score_random_leverage = get_relative_suboptimality(optimal_K_T, random_leverage_K_T, empty_set_K_T)
-        score_uniform_random = get_relative_suboptimality(optimal_K_T, uniform_random_K_T, empty_set_K_T)
+            score_greedy = get_relative_suboptimality(optimal_K_T, greedy_K_T, empty_set_K_T)
+            score_leverage = get_relative_suboptimality(optimal_K_T, leverage_K_T, empty_set_K_T)
+            score_random_leverage = get_relative_suboptimality(optimal_K_T, random_leverage_K_T, empty_set_K_T)
+            score_uniform_random = get_relative_suboptimality(optimal_K_T, uniform_random_K_T, empty_set_K_T)
 
-        #  print("Greedy : " + str(score_greedy) + " Deterministic : " + str(score_leverage) + " random_leverage : " +
-        #           str(score_random_leverage) + " uniform_random : " + str(score_uniform_random))
+            #  print("Greedy : " + str(score_greedy) + " Deterministic : " + str(score_leverage) + " random_leverage : " +
+            #           str(score_random_leverage) + " uniform_random : " + str(score_uniform_random))
 
-        simul_result_dict['greedy'].append(score_greedy)
-        simul_result_dict['deterministic'].append(score_leverage)
-        simul_result_dict['random_leverage'].append(score_random_leverage)
-        simul_result_dict['uniform_random'].append(score_uniform_random)
-    simul_result_dict['time'] = time.time() - test_time
-    return simul_result_dict
+            simul_result_dict['greedy'].append(score_greedy)
+            simul_result_dict['deterministic'].append(score_leverage)
+            simul_result_dict['random_leverage'].append(score_random_leverage)
+            simul_result_dict['uniform_random'].append(score_uniform_random)
+        simul_result_dict['time'] = time.time() - test_time
+        return simul_result_dict
+    except:
+        traceback.print_exc()
+        raise
 
 
 want_multiprocessing = True

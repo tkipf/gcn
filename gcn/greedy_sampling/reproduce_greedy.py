@@ -16,7 +16,7 @@ NUM_NODES = 20  # Size of graph generated
 NOISE_CONSTANT = 10e-2
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
-NUM_SIMULATIONS = 15
+NUM_SIMULATIONS = 30
 CORES = 4
 
 simul_info = {
@@ -34,8 +34,9 @@ reltive_sub_Random = {}
 
 def simulate(graph_gen, num_iter):
     simul_result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
+    test_time = time.time()
     for i in range(num_iter):
-        test_time = time.time()
+       
         # Generate the graphs.
         graph = graph_gen(NUM_NODES)
         # Compute spectral properties of graphs.
@@ -66,7 +67,7 @@ def simulate(graph_gen, num_iter):
         
         optimal_subset, subset_scores = brute_force_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W,
                                                          number_node_sampled, NUM_NODES)
-        print("simul time :" + str(time.time() - test_time))
+        
         empty_set_K_T = subset_scores[str([])]
         optimal_K_T = subset_scores[str(list(sorted(optimal_subset)))]
         
@@ -88,11 +89,11 @@ def simulate(graph_gen, num_iter):
         simul_result_dict['deterministic'].append(score_leverage)
         simul_result_dict['random_leverage'].append(score_random_leverage)
         simul_result_dict['uniform_random'].append(score_uniform_random)
-        
+    simul_result_dict['time'] = time.time() - test_time
     return simul_result_dict
 
 
-want_multiprocessing = True
+want_multiprocessing = False
 
 for graph_gen, result_dict in [
     (generate_Erdos_Renyi_graph, relative_sub_Erdos)
@@ -106,6 +107,7 @@ for graph_gen, result_dict in [
 
             for pr in pool_results:
                 dict_simul = pr.get()
+                print(dict_simul['time'])
                 result_dict['greedy'] += (dict_simul['greedy'])
                 result_dict['deterministic'] += (dict_simul['deterministic'])
                 result_dict['random_leverage'] += (dict_simul['random_leverage'])

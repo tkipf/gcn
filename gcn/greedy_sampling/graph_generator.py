@@ -17,7 +17,6 @@ def normalize_adj(adj):
     return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).toarray()
 
 
-
 def get_sparse_eigen_decomposition(graph, K):
     adj = nx.adjacency_matrix(graph).toarray()
     normalized_adj = normalize_adj(adj)

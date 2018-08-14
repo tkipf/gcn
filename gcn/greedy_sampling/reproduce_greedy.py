@@ -14,7 +14,7 @@ print(sys.path)
 # SIMULATION PARAMS
 
 NUM_NODES = 20  # Size of graph generated
-NOISE_CONSTANT = 10e2
+NOISE_CONSTANT = 100.0  # 0.01
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
 NUM_SIMULATIONS = 1000
@@ -99,9 +99,9 @@ def simulate(graph_gen, num_iter):
 
 want_multiprocessing = True
 
-for graph_gen, result_dict in [(generate_Erdos_Renyi_graph, relative_sub_Erdos),
-                               (generate_pref_attachment_graph, relative_sub_Pref), (generate_random_graph,
-                                                                                     reltive_sub_Random)]:
+for graph_gen, result_dict in [(generate_random_graph, reltive_sub_Random),
+                               (generate_Erdos_Renyi_graph, relative_sub_Erdos), (generate_pref_attachment_graph,
+                                                                                  relative_sub_Pref)]:
     if want_multiprocessing:
         num_iter = int(NUM_SIMULATIONS / CORES)
         pool = mp.Pool(processes=CORES)
@@ -127,7 +127,9 @@ done = time.time()
 elapsed = done - simul_info['time']
 simul_info['time'] = elapsed
 print("elapsed =" + str(elapsed))
+
+filename = 'results_' + str(NOISE_CONSTANT) + '.p'
 pk.dump({
     "results": [relative_sub_Erdos, relative_sub_Pref, reltive_sub_Random],
     'params_simul': simul_info
-}, open(('results.p'), 'wb'))
+}, open((filename), 'wb'))

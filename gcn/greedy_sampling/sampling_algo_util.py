@@ -12,11 +12,15 @@ def get_W(VH, H_h, H, V):
 
 # Returns the index of the best node to add to the sampling set
 def argmax(K, W, cov_w, remaining_node, get_v):
-    u = (0, -1)  # score, index of the best node
+    u = (-1, -1)  # score, index of the best node
     for candidate in remaining_node:
         v_u, v_u_H = get_v(candidate)
         a = (v_u_H * K)
         numerator = (((a * W) * K) * v_u)
+        if numerator <=0:
+            print(type(numerator))
+            print(W)
+            print(K)
         lamda_inv = 1.0 / float(cov_w[candidate][candidate])  # get lam^(-1)_w,u should always be the same
         denumerator = lamda_inv + (a * v_u)
         score = numerator / denumerator

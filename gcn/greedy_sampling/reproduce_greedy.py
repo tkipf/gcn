@@ -68,7 +68,7 @@ def simulate(graph_gen, num_iter):
             uniform_random_subset = uniform_random_algo(number_node_sampled, NUM_NODES)
 
             optimal_subset, subset_scores = brute_force_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W,
-                                                            number_node_sampled, NUM_NODES)
+                                                             number_node_sampled, NUM_NODES)
 
             empty_set_K_T = subset_scores[str([])]
             optimal_K_T = subset_scores[str(list(sorted(optimal_subset)))]
@@ -116,7 +116,6 @@ for graph_gen, result_dict in [(generate_Erdos_Renyi_graph, relative_sub_Erdos),
             result_dict['random_leverage'] += (dict_simul['random_leverage'])
             result_dict['uniform_random'] += (dict_simul['uniform_random'])
 
-        
     else:
         dicts = simulate(graph_gen, NUM_SIMULATIONS)
         result_dict['greedy'].append(dicts['greedy'])

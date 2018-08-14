@@ -15,7 +15,12 @@ def greedy_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_n
         K = update_K(K, W, cov_w, u, get_v)
 
         G_subset.append(u)  # Iterativly add a new node to the set
-        remaining_node.remove(u)
+        try:
+            remaining_node.remove(u)
+        except Exception as e:
+            print("Tried to remove " + str(u))
+            print("From " + str(remaining_node))
+            print("Subset " + str(G_subset))
 
     return G_subset
 

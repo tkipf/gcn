@@ -9,11 +9,12 @@ import pickle as pk
 import multiprocessing as mp
 
 np.set_printoptions(precision=2)
-
+import sys
+print(sys.path)
 # SIMULATION PARAMS
 
 NUM_NODES = 20  # Size of graph generated
-NOISE_CONSTANT = 10e-2
+NOISE_CONSTANT = 10e2
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
 NUM_SIMULATIONS = 1000
@@ -91,9 +92,9 @@ def simulate(graph_gen, num_iter):
             simul_result_dict['uniform_random'].append(score_uniform_random)
         simul_result_dict['time'] = time.time() - test_time
         return simul_result_dict
-    except:
-        traceback.print_exc()
-        raise
+    except Exception as e:
+        print(e)
+        raise e
 
 
 want_multiprocessing = True
@@ -105,7 +106,8 @@ for graph_gen, result_dict in [(generate_Erdos_Renyi_graph, relative_sub_Erdos),
         num_iter = int(NUM_SIMULATIONS / CORES)
         pool = mp.Pool(processes=CORES)
         pool_results = [pool.apply_async(simulate, (graph_gen, num_iter)) for indices in range(CORES)]
-
+        pool.close()
+        pool.join()
         for pr in pool_results:
             dict_simul = pr.get()
             print(dict_simul['time'])
@@ -114,7 +116,7 @@ for graph_gen, result_dict in [(generate_Erdos_Renyi_graph, relative_sub_Erdos),
             result_dict['random_leverage'] += (dict_simul['random_leverage'])
             result_dict['uniform_random'] += (dict_simul['uniform_random'])
 
-        pool.terminate()
+        
     else:
         dicts = simulate(graph_gen, NUM_SIMULATIONS)
         result_dict['greedy'].append(dicts['greedy'])

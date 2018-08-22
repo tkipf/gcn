@@ -10,7 +10,6 @@ import multiprocessing as mp
 
 np.set_printoptions(precision=2)
 import sys
-print(sys.path)
 # SIMULATION PARAMS
 
 NUM_NODES = 20  # Size of graph generated
@@ -18,7 +17,7 @@ NOISE_CONSTANT = 100.0  # 0.01
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
 NUM_SIMULATIONS = 1000
-CORES = 10
+CORES = 9
 
 simul_info = {
     "num_nodes": NUM_NODES,
@@ -43,7 +42,6 @@ def simulate(graph_gen, num_iter):
             graph = graph_gen(NUM_NODES)
             # Compute spectral properties of graphs.
             V_ksparse, V_ksparse_H, get_v = get_sparse_eigen_decomposition(graph, K_sparse)
-
             # Linear transformation of the signal
             H, H_h = get_identity_H(NUM_NODES)
 
@@ -58,8 +56,7 @@ def simulate(graph_gen, num_iter):
             W = get_W(V_ksparse_H, H_h, H, V_ksparse)
 
             # Get sampling selected by greedy algorithm
-            greedy_subset = greedy_algo(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, W, number_node_sampled,
-                                        NUM_NODES)
+            greedy_subset = greedy_algo(get_v, cov_x, cov_w, W, number_node_sampled, NUM_NODES)
 
             leverage_subset = leverage_algo(V_ksparse, number_node_sampled)
 

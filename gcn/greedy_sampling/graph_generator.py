@@ -12,18 +12,18 @@ def normalize_adj(adj):
     d_inv_sqrt = np.power(rowsum, -0.5).flatten()
     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
     d_mat_inv_sqrt = np.diag(d_inv_sqrt)
-    #d_mat_inv_sqrt = sp.diags(d_inv_sqrt)
-    #return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).toarray()
-    return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt)
+    normalized_A = adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt)
+    return normalized_A
 
 
 def get_sparse_eigen_decomposition(graph, K):
-    adj = nx.adjacency_matrix(graph).toarray()
+    adj = nx.adjacency_matrix(graph, nodelist=sorted(graph.nodes())).toarray()
     normalized_adj = normalize_adj(adj)
-    eigenval, eigenvectors = np.linalg.eig(normalized_adj)
 
-    eigenval_Ksparse = np.argsort(eigenval)[-K:]
-    V_ksparse = np.zeros(adj.shape)
+    eigenval, eigenvectors = np.linalg.eig(normalized_adj)
+    eigenval_Ksparse = np.argsort(eigenval)[-K:]  # Find top eigenvalues index
+
+    V_ksparse = np.zeros(adj.shape)  # Only keep the eigenvectors of the max eigenvalues
     V_ksparse[:, eigenval_Ksparse] = eigenvectors[:, eigenval_Ksparse]
 
     V_ksparse = np.matrix(V_ksparse)
@@ -37,6 +37,7 @@ def get_sparse_eigen_decomposition(graph, K):
     return V_ksparse, V_ksparse_H, get_v
 
 
+# Plotting graphs
 def plot_graph(graph):
     nx.draw_shell(
         graph,
@@ -51,22 +52,18 @@ def generate_Erdos_Renyi_graph(n):
     return Erdos_Renyi_graph
 
 
-#preferential attachment model, in which nodes are added
-# one at a time and connected to a node already in the graph with
-# probability proportional to its degree
+# Preferential attachment model
 def generate_pref_attachment_graph(n):
     m0 = 1
     Pref_Attach_graph = nx.barabasi_albert_graph(n, m0)
     return Pref_Attach_graph
 
 
+# Random graph with weight between [0,1]
 def generate_random_graph(n):
     Random_graph = nx.Graph()
     for node_pair in combinations(range(n), 2):  # Generate each possible egde
         weight = uniform(0, 1.000001)  # Need to be [0,1]
-        if weight > 1:
-            print("WARNING the random weight is not working properly, above 1")
-            weight = 1
         if weight > 0:
             Random_graph.add_edge(node_pair[0], node_pair[1], weight=weight)
     if (len(Random_graph.nodes()) < n):  # Recursivly generate a new graph until all nodes are connected

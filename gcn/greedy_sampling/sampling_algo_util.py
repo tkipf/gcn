@@ -1,15 +1,14 @@
 import numpy as np
 from numpy.linalg import inv
+from numpy.linalg import multi_dot
 """
 Helper functions for sampling algorithms. 
 """
 
 
-# W = V_k_H * H_H * H * K_k
+# W = V_k_H * H_H * H * V_K
 def get_W(V_ksparse_H, H_h, H, V_ksparse):
-    a = np.matmul(V_ksparse_H, H_h)
-    b = np.matmul(a, H)
-    W = np.matmul(b, V_ksparse)
+    W = multi_dot([V_ksparse_H, H_h, H, V_ksparse])
     return W
 
 
@@ -18,11 +17,9 @@ def argmax(K, W, cov_w, remaining_nodes, get_v):
     u = (-float("inf"), -1)  # (score, index) to keep track of the best node so far
     for candidate in remaining_nodes:
         v_u, v_u_H = get_v(candidate)
-
-        a = np.matmul(v_u_H, K)
-        numerator = (((a * W) * K) * v_u)  # vu_H * K * W * K * vu
+        numerator = multi_dot([v_u_H, K, W, K, v_u])
         lamda_inv = 1.0 / float(cov_w[candidate][candidate])
-        denumerator = lamda_inv + (a * v_u)  # lam_u -1 + vu_H * K * vu
+        denumerator = lamda_inv + multi_dot([v_u_H, K, v_u])
         score = numerator / denumerator
         if score > u[0]:
             u = (score, candidate)
@@ -32,14 +29,13 @@ def argmax(K, W, cov_w, remaining_nodes, get_v):
 # Update the K*j matrix
 def update_K(K, W, cov_w, u, get_v):
     v_u, v_u_H = get_v(u)
-    numerator = (((K * v_u) * v_u_H) * K)  #  K * vu * vu_H * K
-    lamda_inv = 1.0 / float(cov_w[u][u])  # get lam^(-1)_w,u should always be the same
-    denumerator = lamda_inv + ((v_u_H * K) * v_u)  #  lam_u -1 + vu_H * K * vu
+    numerator = multi_dot([W, K, v_u, v_u_H, K])
+    lamda_inv = 1.0 / float(cov_w[u][u])
+    denumerator = lamda_inv + multi_dot([v_u_H, K, v_u])
     matrix = numerator / denumerator
-    x = (W * matrix)
-    return K - x
+    return K - matrix
 
-
+# Only used to get he initial best sore
 def get_upper_bound_trace_K(W, cov_x):
     upper_bound_matrix = np.matrix(W * cov_x)
     return float(upper_bound_matrix.trace())

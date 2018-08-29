@@ -9,15 +9,13 @@ def greedy_algo(get_v, cov_x, cov_w, W, number_node_sampled, num_nodes):
     G_subset = []
     remaining_node = list(range(0, num_nodes))
     K = cov_x
-
     for j in range(number_node_sampled):
         u = argmax(K, W, cov_w, remaining_node, get_v)
         K = update_K(K, W, cov_w, u, get_v)
-
         G_subset.append(u)  # Iterativly add a new node to the set
         remaining_node.remove(u)
-       
-    return G_subset
+
+    return G_subset, K
 
 
 def leverage_algo(V_ksparse, number_node_sampled):

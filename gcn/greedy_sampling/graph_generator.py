@@ -6,21 +6,20 @@ from numpy.linalg import inv
 import scipy.sparse as sp
 
 
-def normalize_adj(adj):
-    adj = sp.coo_matrix(adj)
-    rowsum = np.array(adj.sum(1))
-    d_inv_sqrt = np.power(rowsum, -0.5).flatten()
-    d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
-    d_mat_inv_sqrt = np.diag(d_inv_sqrt)
-    normalized_A = adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt)
-    return normalized_A
+# def normalize_adj(adj):
+#     adj = sp.coo_matrix(adj)
+#     rowsum = np.array(adj.sum(1))
+#     d_inv_sqrt = np.power(rowsum, -0.5).flatten()
+#     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.
+#     d_mat_inv_sqrt = np.diag(d_inv_sqrt)
+#     normalized_A = adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt)
+#     return normalized_A
 
 
 def get_sparse_eigen_decomposition(graph, K):
-    adj = nx.adjacency_matrix(graph, nodelist=sorted(graph.nodes())).toarray()
-    normalized_adj = normalize_adj(adj)
-
-    eigenval, eigenvectors = np.linalg.eig(normalized_adj)
+    adj = nx.adjacency_matrix(graph, nodelist=sorted(graph.nodes()), weight='weight').toarray()
+    
+    eigenval, eigenvectors = np.linalg.eig(adj)
     eigenval_Ksparse = np.argsort(eigenval)[-K:]  # Find top eigenvalues index
 
     V_ksparse = np.zeros(adj.shape)  # Only keep the eigenvectors of the max eigenvalues

@@ -13,12 +13,12 @@ np.set_printoptions(precision=8)
 
 # SIMULATION PARAMS
 NUM_NODES = 20  # Size of graph generated
-NOISE_CONSTANT = 0.01
+NOISE_CONSTANT = 100.0
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
-NUM_SIMULATIONS = 3
-CORES = 2
-want_multiprocessing = False
+NUM_SIMULATIONS = 30
+CORES = 5
+want_multiprocessing = True
 SEED = 13
 
 # INFO ABOUT SIMUL TO STORE

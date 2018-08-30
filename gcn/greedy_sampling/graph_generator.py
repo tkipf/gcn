@@ -20,7 +20,7 @@ def get_sparse_eigen_decomposition(graph, K):
 
     eigenval, eigenvectors = np.linalg.eig(adj)
     eigenval_Ksparse = np.argsort(np.abs(eigenval))[-K:]  # Find top absolute eigenvalues index
-
+   
     V_ksparse = np.zeros(adj.shape)  # Only keep the eigenvectors of the max eigenvalues
     V_ksparse[:, eigenval_Ksparse] = eigenvectors[:, eigenval_Ksparse]
 

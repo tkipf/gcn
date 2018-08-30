@@ -16,7 +16,7 @@ NUM_NODES = 20  # Size of graph generated
 NOISE_CONSTANT = 0.01
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
-NUM_SIMULATIONS = 100
+NUM_SIMULATIONS = 500
 CORES = 6
 want_multiprocessing = True
 SEED = 13
@@ -43,7 +43,7 @@ def simulate(graph_gen, num_iter):
     simul_result_dict = {'greedy': [], 'deterministic': [], 'random_leverage': [], 'uniform_random': []}
     test_time = time.time()
     for i in range(num_iter):
-
+        print(str(i) + "/" + str(num_iter))
         # Generate the graphs.
         graph = graph_gen(NUM_NODES)
 

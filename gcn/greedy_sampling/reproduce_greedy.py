@@ -13,7 +13,7 @@ np.set_printoptions(precision=8)
 
 # SIMULATION PARAMS
 NUM_NODES = 20  # Size of graph generated
-NOISE_CONSTANT = 0.01
+NOISE_CONSTANT = 100.0
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
 NUM_SIMULATIONS = 500
@@ -90,6 +90,7 @@ def simulate(graph_gen, num_iter):
         score_uniform_random = get_relative_suboptimality(optimal_K_T, uniform_random_K_T, empty_set_K_T)
         if score_greedy > 0.15:
             print("not suppose to happen often.")
+
         # print("Greedy : " + str(score_greedy) + " Deterministic : " + str(score_leverage) + " random_leverage : " +
         #       str(score_random_leverage) + " uniform_random : " + str(score_uniform_random))
         # print("OPTIMAL : " + str(optimal_K_T) + " EMPTY : " + str(empty_set_K_T))
@@ -102,9 +103,9 @@ def simulate(graph_gen, num_iter):
     
 
 
-for graph_gen, result_dict in [(generate_random_graph, reltive_sub_Random),
-                               (generate_Erdos_Renyi_graph, relative_sub_Erdos), (generate_pref_attachment_graph,
-                                                                                  relative_sub_Pref)]:
+for graph_gen, result_dict in [#(generate_random_graph, reltive_sub_Random),
+                               #(generate_Erdos_Renyi_graph, relative_sub_Erdos), 
+                               (generate_pref_attachment_graph,relative_sub_Pref)]:
     if want_multiprocessing:
         num_iter = int(NUM_SIMULATIONS / CORES)
         pool = mp.Pool(processes=CORES)

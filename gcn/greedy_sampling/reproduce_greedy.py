@@ -13,11 +13,11 @@ np.set_printoptions(precision=8)
 
 # SIMULATION PARAMS
 NUM_NODES = 20  # Size of graph generated
-NOISE_CONSTANT = 100.0
+NOISE_CONSTANT = 100
 K_sparse = 5  # Set sparsity of the signal frequence
 number_node_sampled = 5
 NUM_SIMULATIONS = 500
-CORES = 6
+CORES = 7
 want_multiprocessing = True
 SEED = 13
 
@@ -103,8 +103,8 @@ def simulate(graph_gen, num_iter):
     
 
 
-for graph_gen, result_dict in [#(generate_random_graph, reltive_sub_Random),
-                               #(generate_Erdos_Renyi_graph, relative_sub_Erdos), 
+for graph_gen, result_dict in [(generate_random_graph, reltive_sub_Random),
+                               (generate_Erdos_Renyi_graph, relative_sub_Erdos), 
                                (generate_pref_attachment_graph,relative_sub_Pref)]:
     if want_multiprocessing:
         num_iter = int(NUM_SIMULATIONS / CORES)

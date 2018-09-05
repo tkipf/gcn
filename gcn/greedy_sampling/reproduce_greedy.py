@@ -24,11 +24,11 @@ def simulate(graph_gen, num_iter, config):
         # Linear transformation of the signal
         H, H_h = get_identity_H(config['NUM_NODES'])
         # Random signal and noise vectors
-        x, cov_x = get_random_signal_zero_mean_circular(1.0, config['NUM_NODES'])
+        x, cov_x = get_random_signal_zero_mean_circular(1.0, config['K_sparse'])
         w, cov_w = get_random_signal_zero_mean_circular(config['NOISE_CONSTANT'], config['NUM_NODES'])
 
         # Noisy observation. (Not used for now)
-        y = x + w
+        #y = x + w
 
         # Pre computation
         W = get_W(V_ksparse_H, H_h, H, V_ksparse)
@@ -61,7 +61,8 @@ def simulate(graph_gen, num_iter, config):
         score_uniform_random = get_relative_suboptimality(optimal_K_T, uniform_random_K_T, empty_set_K_T)
         if score_greedy > 0.15:
             print("not suppose to happen often.")
-
+        print(greedy_subset)
+        print(optimal_subset)
         print("Greedy : " + str(score_greedy) + " Deterministic : " + str(score_leverage) + " random_leverage : " +
               str(score_random_leverage) + " uniform_random : " + str(score_uniform_random))
         # print("OPTIMAL : " + str(optimal_K_T) + " EMPTY : " + str(empty_set_K_T))

@@ -9,17 +9,13 @@ import scipy.sparse as sp
 def get_sparse_eigen_decomposition(graph, K):
     norm_adj = nx.normalized_laplacian_matrix(graph, nodelist=sorted(graph.nodes()), weight='weight').toarray()
     #adj = nx.adjacency_matrix(graph, nodelist=sorted(graph.nodes()), weight='weight').toarray()
-    
+    np.set_printoptions(precision=2)
     eigenval, eigenvectors = np.linalg.eig(norm_adj)
-  
     eigenval_Ksparse = np.argsort(eigenval)[:K]  # Find top absolute eigenvalues index
-   
     V_ksparse = np.zeros(norm_adj.shape)  # Only keep the eigenvectors of the max eigenvalues
-    V_ksparse[:, eigenval_Ksparse] = eigenvectors[:,0:5]
-
+    V_ksparse[:,0:5] = eigenvectors[:,eigenval_Ksparse]
     V_ksparse = np.matrix(V_ksparse)
     V_ksparse_H = V_ksparse.getH()
-    
     def get_v(index):
         v_index = V_ksparse_H[:, index]
         v_index_H = V_ksparse[index, :]

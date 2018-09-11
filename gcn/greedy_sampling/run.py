@@ -11,7 +11,7 @@ print(">>>>>>> Starting greedy Smapling")
 
 # extract parsed information
 parser = argparse.ArgumentParser(description='Simulations parameters')
-parser.add_argument('-n', '--NOISE_CONSTANT', type=int, help='Noise on signal')
+parser.add_argument('-n', '--NOISE_CONSTANT', type=float, help='Noise on signal')
 parser.add_argument('-N', '--NUM_NODES', type=int, default=20, help='Size of graph generated')
 parser.add_argument('-S', '--NUM_SIMULATIONS', type=int, default=10, help='Number of simulations')
 parser.add_argument('-K', '--K_sparse', type=int, default=5, help='K sparsity')
@@ -37,7 +37,7 @@ for graph_gen, result_dict in [(generate_random_graph, reltive_sub_Random),
     if config['want_multiprocessing']:
         num_iter = int(config['NUM_SIMULATIONS'] / config['CORES'])
         pool = mp.Pool(processes=config['CORES'])
-        pool_results = [pool.apply_async(simulate, (graph_gen, num_iter, config)) for indices in range(CORES)]
+        pool_results = [pool.apply_async(simulate, (graph_gen, num_iter, config)) for indices in range(config['CORES'])]
         pool.close()
         pool.join()
         for pr in pool_results:

@@ -5,17 +5,15 @@ from random import randrange, uniform
 from numpy.linalg import inv
 import scipy.sparse as sp
 
-
 def get_sparse_eigen_decomposition(graph, K):
-    norm_adj = nx.normalized_laplacian_matrix(graph, nodelist=sorted(graph.nodes()), weight='weight').toarray()
-    #adj = nx.adjacency_matrix(graph, nodelist=sorted(graph.nodes()), weight='weight').toarray()
-    np.set_printoptions(precision=2)
-    eigenval, eigenvectors = np.linalg.eig(norm_adj)
-    eigenval_Ksparse = np.argsort(eigenval)[:K]  # Find top absolute eigenvalues index
-    V_ksparse = np.zeros(norm_adj.shape)  # Only keep the eigenvectors of the max eigenvalues
+    adj = nx.adjacency_matrix(graph, nodelist=sorted(graph.nodes()), weight='weight').toarray()
+    eigenval, eigenvectors = np.linalg.eig(adj)
+    eigenval_Ksparse = np.argsort(eigenval)[-K:]  # Find top eigenvalues index (not absolute values)
+    V_ksparse = np.zeros((adj.shape[0],5))  # Only keep the eigenvectors of the max eigenvalues
     V_ksparse[:,0:5] = eigenvectors[:,eigenval_Ksparse]
     V_ksparse = np.matrix(V_ksparse)
     V_ksparse_H = V_ksparse.getH()
+    
     def get_v(index):
         v_index = V_ksparse_H[:, index]
         v_index_H = V_ksparse[index, :]
@@ -48,12 +46,6 @@ def generate_pref_attachment_graph(n):
 
 # Random graph with weight between [0,1]
 def generate_random_graph(n):
-    Random_graph = nx.Graph()
-    for node_pair in combinations(range(n), 2):  # Generate each possible egde
-        weight = uniform(0, 1.000001)  # Need to be [0,1]
-        if weight > 0:
-            Random_graph.add_edge(node_pair[0], node_pair[1], weight=weight)
-    if (len(Random_graph.nodes()) < n):  # Recursivly generate a new graph until all nodes are connected
-        del Random_graph  #  Delete the graph to avoid using memeroy unnecessarily
-        return generate_random_graph(n)
+    Random_graph_prob = 0.5
+    Random_graph = nx.erdos_renyi_graph(n, Random_graph_prob)
     return Random_graph

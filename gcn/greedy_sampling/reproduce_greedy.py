@@ -34,7 +34,7 @@ def simulate(graph_gen, num_iter, config):
         W = get_W(V_ksparse_H, H_h, H, V_ksparse)
 
         # Get sampling set selected by the diff. algorithms
-        greedy_subset, K = greedy_algo(get_v, cov_x, cov_w, W, config['number_node_sampled'], config['NUM_NODES'])
+        greedy_subset = greedy_algo(get_v, cov_x, cov_w, W, config['number_node_sampled'], config['NUM_NODES'])
 
         leverage_subset = leverage_algo(V_ksparse, config['number_node_sampled'])
 

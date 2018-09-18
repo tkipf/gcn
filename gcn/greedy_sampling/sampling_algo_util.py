@@ -46,6 +46,6 @@ def get_MSE_score(V_ksparse, V_ksparse_H, get_v, H, H_h, cov_x, cov_w, possible_
     for i in possible_set:
         v_i, v_i_H = get_v(i)
         lamda_inv = 1.0 / float(cov_w[i][i])
-        inv_cov_x = inv_cov_x + lamda_inv * (v_i * v_i_H)
-    K = np.matrix((((H * V_ksparse) * inv(inv_cov_x)) * V_ksparse_H) * H_h)
+        inv_cov_x = inv_cov_x + lamda_inv * multi_dot([v_i, v_i_H])
+    K = multi_dot([get_W(V_ksparse_H, H_h, H, V_ksparse),inv(inv_cov_x)])
     return float(K.trace())

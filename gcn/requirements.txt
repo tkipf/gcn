@@ -1,0 +1,5 @@
+tensorflow_gpu==1.4.1
+scipy==1.0.0
+numpy==1.11.0
+networkx==2.1
+tensorflow==1.8.0

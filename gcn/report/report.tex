@@ -1,0 +1,213 @@
+\documentclass{article}
+\usepackage[top=1.2in, bottom=1in, left=0.9in, right=0.9in]{geometry}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{gensymb}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[parfill]{parskip}
+\usepackage[makeroom]{cancel}
+\usepackage[section]{placeins}
+\usepackage{fancyhdr}
+%\usepackage{fourier}
+\usepackage{appendix}
+\usepackage{pdflscape}
+\usepackage{datetime}
+\usepackage[utf8]{inputenc}
+\usepackage{tocloft}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage{booktabs}
+\usepackage{mwe}
+\usepackage{lipsum}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{appendix}
+\usepackage{datetime}
+\usepackage{url}
+\usepackage{siunitx}
+\usepackage{verbatimbox}
+\usepackage{lmodern}
+\usepackage{blindtext}
+\usepackage{natbib}
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\begin{document}
+\bibliographystyle{plainnat}
+		
+	\begin{center}
+
+		\textsc{\huge Subsampled GCNN}\\[0.5cm] 
+		\textsc{\large Florence Robert-Regol \hfill THE GREAT Jonas Scheller  \hfill Mark Coates}\\
+		\textsc{\today}\\[0.5cm] 
+		
+	\end{center}
+
+
+\pagestyle{fancy}
+\lhead{Sampled Graph Convolutional Neural Networks}
+\rhead{\today}
+\pagenumbering{arabic}
+
+\section*{Objective}
+Problem formulation:
+
+Classify graph-structured data where the topology of the graph is fully known, but where the labels and features of some nodes are missing. During training, the information of a selected subset of unknown nodes can be obtained. The goal is to be able to effectively train using only this subset of nodes while simultaneously choosing the best nodes to add to this subset.
+
+Solution:
+
+Extend the existing GCNN model introduced by \citet{kipf2017semi}
+ to train with missing features
+and use the greedy sampling methods from \citet{DBLP:journals/corr/ChamonR17}
+ to select which unknown node would be more helpful to get better results. \
+ 
+1. First the GCNN extension with some experiments is presented. 
+2. Greedy sampling algorithm  
+3. Merging of the two.
+
+\section*{GCNN}
+\subsection*{Review of Previous Work}
+The first step of this work was to reproduce the results obtained by \citet{kipf2017semi} using the same two-layer graph
+convolutional neural network.
+
+\begin{equation}
+Z = f(X, A) = softmax(\text{\^{A}} ReLU(\text{\^{A}}XW_0))W_1))
+\end{equation}
+
+where \^{A} is an augmented and normalized adjacency matrix defined as
+\begin{equation}
+\text{\^{A}} = \text{\~{D}}^{-1/2}\text{\~{A}}\text{\~{D}}^{-1/2}
+\end{equation}
+
+In figure \ref{repro}, the blue line is is the results obtained by the experiment and the black point is the result reported in the paper. We can conclude that the results were successfully reproduced.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{reproducibility_experiment}
+\caption{Test Accuracy for GCNN in a semi-supervised settings for the Cora dataset}
+\label{repro}
+\end{figure}
+\subsection*{GCNN extension}
+In order to train without the complete feature set, some adjustments needed to be made in the algorithm. The goal is to nullify the contribution of a sampled-out node to his neighbors without interfering with the opposing mechanism by which the node with unknown feature pulls information from his neighbors.
+\\
+To do so, the adjacency matrix at the first layer is altered by setting the column of sampled-out nodes to zero. In the same way, the second adjacency matrix is also altered by setting the unknown nodes that don't have any known neighbors to zero as well.
+%TODO reformulate
+\begin{equation}
+Z = f(X, A) = softmax(\text{\^{A}}_{sampled_1} ReLU(\text{\^{A}}_{sampled_0}XW_0))W_1))
+\end{equation}
+
+This way, only the existing information is propagated and it is not diluted by the unknown data at each convolution operation.
+
+This extension will be referred to as \textit{sampled GCNN} or \textit{extended GCNN}.
+\subsection*{Experiments}
+Unless otherwise stated, all experiments were conducted using the Cora dataset, with the same testing/training/validation ratio of $37\%/45\%/18\%$. The black point is the reported result from \citeauthor{kipf2017semi} as a reference.
+\subsubsection*{Sampled GCNN vs GCNN}
+The first experiment is a comparison of the initial GCNN with the new sampled GCNN model with missing features \ref{with_test_balanced}.
+ To be able to compare the two, the label balance was maintained and the testing and validation features were kept, in both models.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{GCNNvs_with_test}
+\caption{
+Experiment 1
+}
+\label{with_test_balanced}
+\end{figure}
+
+The same experiment %un peu raide comme debut de paragraphe... j'irais plutot avec The second experiment was aiming to compare blahblah ou quelque chose du genre, pour faire echo au premier paragraphe
+ was made but without the testing and validation features known, for both model \ref{without_test_balanced}. %phrase a redisegner
+ This problem setting is more aligned with the goal of this project.
+
+Considering the testing/validation vs training ratio, this is a significant reduction of available information during training. However, the sampled model was much more affected than the normal GCNN by this additional restriction. The normal GCNN only %j'enleverais le looked like, the normal GCNN tood a 5% drop, but the overall curve shape seemed unafected, ...
+looked like it took a drop of 5\% but the overall shape of the curve seems unaffected, whereas the accuracy of the sampled GCNN took a more significant drop.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{GCNNvs_without_test}
+\caption{
+Experiment 2
+}
+\label{without_test_balanced}
+\end{figure}
+
+
+%TODO
+1.This could indicate that features are highly correlated to the labeling and that few examples are needed. -> Could be verified by running a simple neural network todo
+2. Graph connectivity is too sparse and with that little known node as 10-30\%, information can't travel with only two hops and has trouble reaching some nodes. 
+
+\begin{table}[]
+\begin{tabular}{cc|cll}
+\textbf{}                          & \textbf{0}                & \textbf{1}               & \textbf{2} & \textbf{$\geq$3} \\ \cline{2-5} 
+\textbf{1 hop}                     & 0.49                      & 0.35                     & 0.11       & 0.05                      \\
+\textbf{2 hop}                     & 0.07                      & 0.18                     & 0.13       & 0.62                      \\
+\multicolumn{1}{l}{\textbf{3 hop}} & \multicolumn{1}{l|}{0.01} & \multicolumn{1}{l}{0.02} & 0.02       & 0.95                     
+\end{tabular}
+\end{table}
+               
+\subsubsection*{Unbalanced Labels}
+In the previous tests, to be consistent with the experiment conducted in the paper, the label balance was maintained thorough the experiment (Except for the 100\% case where every label was included). This is the same experiments %We performed the same experiment,
+ but without %maintaining 
+ label balance. Figure \ref{with_test_unbalanced} and figure \ref{without_test_unbalanced} look pretty %quite
+  similar to their corresponding balanced version, respectively figure \ref{with_test_balanced} and figure \ref{without_test_balanced}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{GCNNvs_with_random}
+\caption{
+Experiment 3
+}
+\label{with_test_unbalanced}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{GCNNvs_without_test_random}
+\caption{
+Experiment 4
+}
+\label{without_test_unbalanced}
+\end{figure}
+
+\subsubsection*{Identity Features}
+The last experiment was to replace the feature matrix by an identity matrix, making the identity of the nodes the only information accessible to the GCNN. The results were compared to the balanced results from figure \ref{with_test_balanced} and figure \ref{without_test_balanced}. In the case %weird ici... When testing and validation features were known, the identity...
+of with testing and validation features known, the identity matrix seems %seemed
+ to suffer a relatively constant loss of around 7\%. A surprising result is that in the case of removed testing and validation features, the sampled GCNN performed worst than sampled GCNN with identity features. %cette phrase n'est pas syntaxiquement correcte et pas claire
+  This could maybe %potentially
+ be explained by the wrong second layer adjacency matrix(?).
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{GCNNvs_with_test_Identity}
+\caption{
+Experiment 5
+}
+\label{with_test_balanced_Iden}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.8]{GCNNvs_without_test_Identity}
+\caption{
+Experiment 6
+}
+\label{without_test_balanced_Iden}
+\end{figure}
+
+
+
+\section*{Greedy Sampling}
+\subsection*{Review of Previous Work}
+
+TODO present the greedy algorithm
+
+\subsection*{Extension}
+TODO extends x to multidimensional input (ask mark)
+\section*{Final algorithm}
+TODO define H as a linear version of GCNN (?)
+\section*{Results}
+it works well
+\bibliography{literature}{}
+
+\end{document}

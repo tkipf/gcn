@@ -21,6 +21,17 @@ def sample_mask(idx, l):
     return np.array(mask, dtype=np.bool)
 
 
+def print_partition_index(mask, partition_name, y):
+    indices = np.argwhere(mask > 0).reshape(-1)
+    start = min(indices)
+    end = max(indices)
+    val_indices = np.argwhere(np.argmax(y, axis=1) > 0).reshape(-1)
+    val_start = min(val_indices)
+    val_end = max(val_indices)
+    print(partition_name + " index : " + str(start) + "-" + str(end) + "  val index : " + str(val_start) + "-" +
+          str(val_end))
+
+
 def load_data(dataset_str):
     """
     Loads input data from gcn/data directory
@@ -41,6 +52,7 @@ def load_data(dataset_str):
     :param dataset_str: Dataset name
     :return: All data input files loaded (as well the training/test data).
     """
+
     names = ['x', 'y', 'tx', 'ty', 'allx', 'ally', 'graph']
     objects = []
     for i in range(len(names)):
@@ -49,20 +61,21 @@ def load_data(dataset_str):
                 objects.append(pkl.load(f, encoding='latin1'))
             else:
                 objects.append(pkl.load(f))
-
     x, y, tx, ty, allx, ally, graph = tuple(objects)
+
     test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
     test_idx_range = np.sort(test_idx_reorder)
 
     if dataset_str == 'citeseer':
+
         # Fix citeseer dataset (there are some isolated nodes in the graph)
         # Find isolated nodes, add them as zero-vecs into the right position
-        test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder)+1)
+        test_idx_range_full = range(min(test_idx_reorder), max(test_idx_reorder) + 1)
         tx_extended = sp.lil_matrix((len(test_idx_range_full), x.shape[1]))
-        tx_extended[test_idx_range-min(test_idx_range), :] = tx
+        tx_extended[test_idx_range - min(test_idx_range), :] = tx
         tx = tx_extended
         ty_extended = np.zeros((len(test_idx_range_full), y.shape[1]))
-        ty_extended[test_idx_range-min(test_idx_range), :] = ty
+        ty_extended[test_idx_range - min(test_idx_range), :] = ty
         ty = ty_extended
 
     features = sp.vstack((allx, tx)).tolil()
@@ -73,16 +86,17 @@ def load_data(dataset_str):
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
     idx_test = test_idx_range.tolist()
-    idx_train = range(len(y))
-    idx_val = range(len(y), len(y)+500)
+    idx_train = range(1208)
+    idx_val = range(1208, idx_test[0])
 
-    train_mask = sample_mask(idx_train, labels.shape[0])
     val_mask = sample_mask(idx_val, labels.shape[0])
     test_mask = sample_mask(idx_test, labels.shape[0])
+    train_mask = np.logical_not(val_mask + test_mask)
 
     y_train = np.zeros(labels.shape)
     y_val = np.zeros(labels.shape)
     y_test = np.zeros(labels.shape)
+
     y_train[train_mask, :] = labels[train_mask, :]
     y_val[val_mask, :] = labels[val_mask, :]
     y_test[test_mask, :] = labels[test_mask, :]
@@ -92,6 +106,7 @@ def load_data(dataset_str):
 
 def sparse_to_tuple(sparse_mx):
     """Convert sparse matrix to tuple representation."""
+
     def to_tuple(mx):
         if not sp.isspmatrix_coo(mx):
             mx = mx.tocoo()
@@ -135,13 +150,16 @@ def preprocess_adj(adj):
     return sparse_to_tuple(adj_normalized)
 
 
-def construct_feed_dict(features, support, labels, labels_mask, placeholders):
+def construct_feed_dict(features, support, labels, labels_mask, sub_sampled_support, placeholders):
     """Construct feed dictionary."""
     feed_dict = dict()
     feed_dict.update({placeholders['labels']: labels})
     feed_dict.update({placeholders['labels_mask']: labels_mask})
     feed_dict.update({placeholders['features']: features})
     feed_dict.update({placeholders['support'][i]: support[i] for i in range(len(support))})
+    feed_dict.update(
+        {placeholders['sub_sampled_support'][i]: sub_sampled_support[i]
+         for i in range(len(sub_sampled_support))})
     feed_dict.update({placeholders['num_features_nonzero']: features[1].shape})
     return feed_dict
 
@@ -163,7 +181,7 @@ def chebyshev_polynomials(adj, k):
         s_lap = sp.csr_matrix(scaled_lap, copy=True)
         return 2 * s_lap.dot(t_k_minus_one) - t_k_minus_two
 
-    for i in range(2, k+1):
+    for i in range(2, k + 1):
         t_k.append(chebyshev_recurrence(t_k[-1], t_k[-2], scaled_laplacian))
 
     return sparse_to_tuple(t_k)

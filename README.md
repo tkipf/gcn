@@ -21,6 +21,7 @@ python setup.py install
 ## Run the demo
 
 ```bash
+cd gcn
 python train.py
 ```
 

@@ -1,0 +1,5 @@
+networkx==2.2
+scipy==1.1.0
+setuptools==40.6.3
+numpy==1.15.4
+tensorflow==1.13.1

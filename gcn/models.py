@@ -1,3 +1,5 @@
+import os
+
 from gcn.layers import *
 from gcn.metrics import *
 
@@ -93,7 +95,16 @@ class MLP(Model):
         self.placeholders = placeholders
 
         self.optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
-
+        
+        if os.environ.get('TF_ENABLE_AUTO_MIXED_PRECISION', default='0') == '1' or \
+           ('gpu_auto_mixed_precision' in FLAGS and FLAGS.gpu_auto_mixed_precision):
+            tf_version_list = tf.__version__.split(".")
+            if int(tf_version_list[0]) < 2:
+                if int(tf_version_list[1]) < 14:
+                    raise RuntimeError("TensorFlow>=1.14 is required for automatic precision.")
+            print("=============Enabling GPU Automatic Mixed Precision=============")
+            self.optimizer = tf.train.experimental.enable_mixed_precision_graph_rewrite(self.optimizer)
+        
         self.build()
 
     def _loss(self):
@@ -140,7 +151,15 @@ class GCN(Model):
         self.placeholders = placeholders
 
         self.optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
-
+        if os.environ.get('TF_ENABLE_AUTO_MIXED_PRECISION', default='0') == '1' or \
+           ('gpu_auto_mixed_precision' in FLAGS and FLAGS.gpu_auto_mixed_precision):
+            tf_version_list = tf.__version__.split(".")
+            if int(tf_version_list[0]) < 2:
+                if int(tf_version_list[1]) < 14:
+                    raise RuntimeError("TensorFlow>=1.14 is required for automatic precision.")
+            print("=============Enabling GPU Automatic Mixed Precision=============")
+            self.optimizer = tf.train.experimental.enable_mixed_precision_graph_rewrite(self.optimizer)
+            
         self.build()
 
     def _loss(self):

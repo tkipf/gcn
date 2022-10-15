@@ -6,6 +6,14 @@ from scipy.sparse.linalg.eigen.arpack import eigsh
 import sys
 
 
+def second_parse_network(filename):
+    """Secon Parse Network."""
+    colIndex = []
+    for li in open(filename):
+        colIndex.append(int(li.strip()))
+    rowIndex = list()
+    return (colIndex,rowIndex)
+
 def parse_index_file(filename):
     """Parse index file."""
     index = []

@@ -1,7 +1,7 @@
-from gcn.inits import *
+from inits import *
 import tensorflow as tf
 
-flags = tf.app.flags
+flags = tf.compat.v1.flags
 FLAGS = flags.FLAGS
 
 # global unique layer ID dictionary for layer name assignment
@@ -21,16 +21,16 @@ def get_layer_uid(layer_name=''):
 def sparse_dropout(x, keep_prob, noise_shape):
     """Dropout for sparse tensors."""
     random_tensor = keep_prob
-    random_tensor += tf.random_uniform(noise_shape)
+    random_tensor += tf.random.uniform(noise_shape)
     dropout_mask = tf.cast(tf.floor(random_tensor), dtype=tf.bool)
-    pre_out = tf.sparse_retain(x, dropout_mask)
+    pre_out = tf.sparse.retain(x, dropout_mask)
     return pre_out * (1./keep_prob)
 
 
 def dot(x, y, sparse=False):
     """Wrapper for tf.matmul (sparse vs dense)."""
     if sparse:
-        res = tf.sparse_tensor_dense_matmul(x, y)
+        res = tf.sparse.sparse_dense_matmul(x, y)
     else:
         res = tf.matmul(x, y)
     return res
@@ -69,17 +69,17 @@ class Layer(object):
         return inputs
 
     def __call__(self, inputs):
-        with tf.name_scope(self.name):
+        with tf.compat.v1.name_scope(self.name):
             if self.logging and not self.sparse_inputs:
-                tf.summary.histogram(self.name + '/inputs', inputs)
+                tf.compat.v1.summary.histogram(self.name + '/inputs', inputs)
             outputs = self._call(inputs)
             if self.logging:
-                tf.summary.histogram(self.name + '/outputs', outputs)
+                tf.compat.v1.summary.histogram(self.name + '/outputs', outputs)
             return outputs
 
     def _log_vars(self):
         for var in self.vars:
-            tf.summary.histogram(self.name + '/vars/' + var, self.vars[var])
+            tf.compat.v1.summary.histogram(self.name + '/vars/' + var, self.vars[var])
 
 
 class Dense(Layer):
@@ -101,7 +101,7 @@ class Dense(Layer):
         # helper variable for sparse dropout
         self.num_features_nonzero = placeholders['num_features_nonzero']
 
-        with tf.variable_scope(self.name + '_vars'):
+        with tf.compat.v1.variable_scope(self.name + '_vars'):
             self.vars['weights'] = glorot([input_dim, output_dim],
                                           name='weights')
             if self.bias:
@@ -117,7 +117,7 @@ class Dense(Layer):
         if self.sparse_inputs:
             x = sparse_dropout(x, 1-self.dropout, self.num_features_nonzero)
         else:
-            x = tf.nn.dropout(x, 1-self.dropout)
+            x = tf.nn.dropout(x, rate=1 - (1-self.dropout))
 
         # transform
         output = dot(x, self.vars['weights'], sparse=self.sparse_inputs)
@@ -150,7 +150,7 @@ class GraphConvolution(Layer):
         # helper variable for sparse dropout
         self.num_features_nonzero = placeholders['num_features_nonzero']
 
-        with tf.variable_scope(self.name + '_vars'):
+        with tf.compat.v1.variable_scope(self.name + '_vars'):
             for i in range(len(self.support)):
                 self.vars['weights_' + str(i)] = glorot([input_dim, output_dim],
                                                         name='weights_' + str(i))
@@ -167,7 +167,7 @@ class GraphConvolution(Layer):
         if self.sparse_inputs:
             x = sparse_dropout(x, 1-self.dropout, self.num_features_nonzero)
         else:
-            x = tf.nn.dropout(x, 1-self.dropout)
+            x = tf.nn.dropout(x, rate=1 - (1-self.dropout))
 
         # convolve
         supports = list()

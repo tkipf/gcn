@@ -2,15 +2,16 @@ from __future__ import division
 from __future__ import print_function
 
 import time
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
-from gcn.utils import *
-from gcn.models import GCN, MLP
+from utils import *
+from models import GCN, MLP
 
 # Set random seed
 seed = 123
 np.random.seed(seed)
-tf.set_random_seed(seed)
+tf.set_random_seed(seed) 
 
 # Settings
 flags = tf.app.flags

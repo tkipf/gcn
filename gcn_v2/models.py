@@ -1,9 +1,8 @@
-from gcn.layers import *
-from gcn.metrics import *
+from layers import *
+from metrics import *
 
-flags = tf.app.flags
+flags = tf.compat.v1.app.flags
 FLAGS = flags.FLAGS
-
 
 class Model(object):
     def __init__(self, **kwargs):
@@ -37,7 +36,7 @@ class Model(object):
 
     def build(self):
         """ Wrapper for _build() """
-        with tf.variable_scope(self.name):
+        with tf.compat.v1.variable_scope(self.name):
             self._build()
 
         # Build sequential layer model
@@ -48,7 +47,7 @@ class Model(object):
         self.outputs = self.activations[-1]
 
         # Store model variables for easy access
-        variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.name)
+        variables = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope=self.name)
         self.vars = {var.name: var for var in variables}
 
         # Build metrics
@@ -69,14 +68,14 @@ class Model(object):
     def save(self, sess=None):
         if not sess:
             raise AttributeError("TensorFlow session not provided.")
-        saver = tf.train.Saver(self.vars)
+        saver = tf.compat.v1.train.Saver(self.vars)
         save_path = saver.save(sess, "tmp/%s.ckpt" % self.name)
         print("Model saved in file: %s" % save_path)
 
     def load(self, sess=None):
         if not sess:
             raise AttributeError("TensorFlow session not provided.")
-        saver = tf.train.Saver(self.vars)
+        saver = tf.compat.v1.train.Saver(self.vars)
         save_path = "tmp/%s.ckpt" % self.name
         saver.restore(sess, save_path)
         print("Model restored from file: %s" % save_path)
@@ -92,7 +91,7 @@ class MLP(Model):
         self.output_dim = placeholders['labels'].get_shape().as_list()[1]
         self.placeholders = placeholders
 
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+        self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
 
         self.build()
 
@@ -139,7 +138,7 @@ class GCN(Model):
         self.output_dim = placeholders['labels'].get_shape().as_list()[1]
         self.placeholders = placeholders
 
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
+        self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=FLAGS.learning_rate)
 
         self.build()
 

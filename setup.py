@@ -1,6 +1,6 @@
 from setuptools import setup
 from setuptools import find_packages
-
+print(11)
 setup(name='gcn',
       version='1.0',
       description='Graph Convolutional Networks in Tensorflow',
